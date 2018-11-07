@@ -1,6 +1,6 @@
-package cz.muni.fi.sdipr;
+package cz.muni.fi.sdipr.kafka;
 
-import cz.muni.fi.sdipr.exceptions.ParseMappingException;
+import cz.muni.fi.sdipr.kafka.exceptions.ParseMappingException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -19,8 +19,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Main class that runs Kafka Producer tests with transactional API.
@@ -31,7 +34,9 @@ public class App
     private static Logger logger = LoggerFactory.getLogger(App.class);
 
     public static void main( String[] args )  {
+
         Options options = createArguments();
+
         try {
             CommandLineParser parser = new DefaultParser();
 
@@ -39,10 +44,12 @@ public class App
 
             File propFile = PatternOptionBuilder.FILE_VALUE.cast(line.getParsedOptionValue("producer-props"));
             Number repeatsNumber = PatternOptionBuilder.NUMBER_VALUE.cast(line.getParsedOptionValue("repeats"));
-            int repeats = repeatsNumber.intValue();
+            int repeats = repeatsNumber == null ? 1 : repeatsNumber.intValue();
             String[] topicMapping = line.getOptionValues("topic-mapping");
 
             List<TopicMapping> mappings = TopicMappings.parse(topicMapping);
+
+            logger.info("Number of repeats of given mapping(s) is {} time(s)", repeats);
 
             Properties producerProps = new Properties();
             try (InputStream input = new FileInputStream(propFile)) {
@@ -54,6 +61,18 @@ public class App
             producerProps.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
             boolean isTransactional = producerProps.getProperty("transactional.id") != null;
+
+            String producerPropsString = producerProps.stringPropertyNames().stream().sorted()
+                    .map((name) -> {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append(name);
+                        stringBuilder.append("=");
+                        stringBuilder.append(producerProps.getProperty(name));
+                        stringBuilder.append(System.lineSeparator());
+                        return stringBuilder.toString();
+                    })
+                    .collect(Collectors.joining());
+            logger.info("Configured producer properties " + System.lineSeparator() + producerPropsString);
 
             Producer<String, byte[]> producer = new KafkaProducer<>(producerProps);
 
@@ -70,7 +89,12 @@ public class App
                 producer.commitTransaction();
             }
 
-            logger.info("Starting producer test ...");
+            if (line.hasOption("pause")) {
+                logger.info("Press ENTER to start test ...");
+                System.in.read();
+            }
+
+            logger.info("Executing producer test ...");
             long numberOfMessages = mappings.stream()
                     .mapToLong((m) -> m.getByteSize())
                     .sum();
@@ -98,6 +122,8 @@ public class App
         } catch (ParseException | ParseMappingException exp) {
             logger.error(exp.getMessage());
             printHelp(options);
+        } catch (IOException exp) {
+            logger.error(exp.getMessage());
         }
     }
 
@@ -115,7 +141,7 @@ public class App
 
         Option repeats = Option.builder("n")
                 .longOpt("repeats")
-                .required()
+                .required(false)
                 .hasArg()
                 .argName("int")
                 .type(PatternOptionBuilder.NUMBER_VALUE)
@@ -132,9 +158,17 @@ public class App
                 .desc("mapping messages to topics\n[topic name],[# msgs],[msg size]")
                 .build();
 
+        Option pause = Option.builder("s")
+                .longOpt("pause")
+                .hasArg(false)
+                .optionalArg(true)
+                .desc("pauses after warming kafka producer and waits for input")
+                .build();
+
         options.addOption(props);
         options.addOption(repeats);
         options.addOption(topicMapping);
+        options.addOption(pause);
 
         return options;
     }

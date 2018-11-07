@@ -4,11 +4,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>cz.muni.fi.sdipr</groupId>
-  <artifactId>producer-performance</artifactId>
+  <groupId>cz.muni.fi.sdipr.kafka</groupId>
+  <artifactId>kafka-producer-test</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>kafka-producer-performance</name>
+  <name>Kafka Producer Test</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -94,7 +94,7 @@
             </execution>
           </executions>
           <configuration>
-            <mainClass>cz.muni.fi.sdipr.App</mainClass>
+            <mainClass>cz.muni.fi.sdipr.kafka.App</mainClass>
           </configuration>
         </plugin>
       </plugins>

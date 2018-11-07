@@ -1,4 +1,4 @@
-package cz.muni.fi.sdipr.exceptions;
+package cz.muni.fi.sdipr.kafka.exceptions;
 
 /**
  * Exception when

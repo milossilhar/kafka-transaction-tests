@@ -1,11 +1,9 @@
-package cz.muni.fi.sdipr;
+package cz.muni.fi.sdipr.kafka;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -35,7 +33,7 @@ public class PayloadFactory {
             nextIndex = random.nextInt(alphabet.length);
             payload[i] = alphabet[nextIndex];
         }
-        logger.info("Payload created with size {} B", payload.length);
+        logger.trace("Payload created with size {} B", payload.length);
         return payload;
     }
 }

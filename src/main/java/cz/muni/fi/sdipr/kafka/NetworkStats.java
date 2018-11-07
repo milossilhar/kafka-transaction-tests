@@ -1,10 +1,8 @@
-package cz.muni.fi.sdipr;
+package cz.muni.fi.sdipr.kafka;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.util.resources.cldr.af.CurrencyNames_af_NA;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +21,7 @@ public class NetworkStats {
     private long        startTime;
     private long        messagesSent;
     private long        bytesSent;
+    private long        totalMessages;
     private List<Long>  latencies;
 
     /**
@@ -33,6 +32,7 @@ public class NetworkStats {
         this.startTime     = System.nanoTime();
         this.messagesSent  = 0;
         this.bytesSent     = 0;
+        this.totalMessages = numberOfRecords;
         this.latencies     = new ArrayList<>((int) numberOfRecords);
     }
 
@@ -45,6 +45,9 @@ public class NetworkStats {
         latencies.add(latency);
         bytesSent += bytes;
         messagesSent++;
+        if (messagesSent % (totalMessages / 10) == 0) {
+            printPartialResults();
+        }
     }
 
     /**
@@ -72,5 +75,20 @@ public class NetworkStats {
         logger.info("{} messages sent, {} MB sent", messagesSent, bytesSent / BYTES_TO_MEGABYTES);
         logger.info("{} msg/s, bytes per sec: {} MB/s", messagesPerSec, bytesPerSec / BYTES_TO_MEGABYTES);
         logger.info("{} ms average latency, {} ms minimum latency, {} ms maximum latency", averageLatency, minLatency, maxLatency);
+    }
+
+    /**
+     * Prints or rather logs (info level) partial results every 10% messages.
+     */
+    public void printPartialResults() {
+        long elapsed = System.nanoTime() - startTime;
+        double elapsedSeconds = elapsed / NANOSECOND_TO_SECOND;
+
+        // network speed calculations
+        double messagesPerSec  = messagesSent / elapsedSeconds;
+        double bytesPerSec = bytesSent / elapsedSeconds;
+
+        logger.info("Messages sent {} (elapsed time: {}s) speed: {} msg/s {} MB/s",
+                messagesSent, elapsedSeconds, messagesPerSec, bytesPerSec / BYTES_TO_MEGABYTES);
     }
 }

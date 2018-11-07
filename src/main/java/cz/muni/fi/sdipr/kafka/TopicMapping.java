@@ -1,7 +1,5 @@
-package cz.muni.fi.sdipr;
+package cz.muni.fi.sdipr.kafka;
 
-import com.sun.javafx.binding.StringFormatter;
-import org.apache.commons.cli.PatternOptionBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
