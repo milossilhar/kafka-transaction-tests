@@ -1,6 +1,7 @@
-package cz.muni.fi.sdipr.kafka;
+package cz.muni.fi.sdipr.kafka.common;
 
-import cz.muni.fi.sdipr.kafka.exceptions.ParseMappingException;
+import cz.muni.fi.sdipr.kafka.common.TopicMapping;
+import cz.muni.fi.sdipr.kafka.common.exceptions.ParseMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package cz.muni.fi.sdipr.kafka;
+package cz.muni.fi.sdipr.kafka.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +16,8 @@ public class TopicMapping {
 
     private String  topicName;
     private int     messages;
-    private int    byteSize;
-    private byte[] payload;
+    private int     byteSize;
+    private byte[]  payload;
 
     public TopicMapping(String topicName, int messages, int byteSize) {
         this.topicName  = topicName;
@@ -50,7 +50,7 @@ public class TopicMapping {
      *
      * @return
      */
-    public long getByteSize() {
+    public int getByteSize() {
         return byteSize;
     }
 

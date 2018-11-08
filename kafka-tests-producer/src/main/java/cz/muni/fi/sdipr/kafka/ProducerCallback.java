@@ -1,5 +1,6 @@
 package cz.muni.fi.sdipr.kafka;
 
+import cz.muni.fi.sdipr.kafka.common.NetworkStats;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
@@ -9,9 +10,9 @@ import org.slf4j.LoggerFactory;
  * Class that implements {@link Callback} interface and is called on every acknowledged sent message from Kafka.
  * @author Milos Silhar
  */
-public class PerformanceCallback implements Callback {
+public class ProducerCallback implements Callback {
 
-    private Logger logger = LoggerFactory.getLogger(PerformanceCallback.class);
+    private Logger logger = LoggerFactory.getLogger(ProducerCallback.class);
 
     private NetworkStats networkStats;
     private long bytesSent;
@@ -19,11 +20,11 @@ public class PerformanceCallback implements Callback {
     private long startTime;
 
     /**
-     * Constructs PerformanceCallback object with given parameters.
+     * Constructs ProducerCallback object with given parameters.
      * @param stats {@link NetworkStats} object to which record sent message.
      * @param bytesSent Number of bytes sent in message.
      */
-    public PerformanceCallback(NetworkStats stats, long bytesSent) {
+    public ProducerCallback(NetworkStats stats, long bytesSent) {
         this.networkStats = stats;
         this.bytesSent = bytesSent;
 

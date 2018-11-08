@@ -1,4 +1,4 @@
-package cz.muni.fi.sdipr.kafka;
+package cz.muni.fi.sdipr.kafka.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,5 +35,14 @@ public class PayloadFactory {
         }
         logger.trace("Payload created with size {} B", payload.length);
         return payload;
+    }
+
+    /**
+     * Creates string payload of specific size.
+     * @return
+     */
+    public String getStringPayload() {
+        byte[] payload = getPayload();
+        return new String(payload, StandardCharsets.UTF_8);
     }
 }

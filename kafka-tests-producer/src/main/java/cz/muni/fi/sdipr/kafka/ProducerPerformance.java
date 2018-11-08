@@ -1,0 +1,90 @@
+package cz.muni.fi.sdipr.kafka;
+
+import cz.muni.fi.sdipr.kafka.common.NetworkStats;
+import cz.muni.fi.sdipr.kafka.common.PropertiesLoader;
+import cz.muni.fi.sdipr.kafka.common.TopicMapping;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+/**
+ * @author Milos Silhar
+ */
+public class ProducerPerformance {
+
+    private Logger logger = LoggerFactory.getLogger(ProducerPerformance.class);
+
+    private static final String WARMUP_STRING = "warmupdata";
+
+    private Producer<String, byte[]> kafkaProducer;
+    private boolean isTransactional;
+    private List<TopicMapping> mappings;
+    private NetworkStats stats;
+
+    public ProducerPerformance(PropertiesLoader properties, List<TopicMapping> mappings) {
+        this.mappings = mappings;
+        this.isTransactional = properties.hasProperty("transactional.id");
+
+        properties.addProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.addProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
+
+        logger.info("Creating ProducerPerformance with properties ...");
+        properties.logProperties();
+
+        kafkaProducer = new KafkaProducer<>(properties.getProperties());
+
+        logger.info("Warming up Kafka producer ...");
+        if (isTransactional) {
+            kafkaProducer.initTransactions();
+            kafkaProducer.beginTransaction();
+        }
+        for (TopicMapping mapping : mappings) {
+            byte[] data = WARMUP_STRING.getBytes();
+            kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), null, data));
+        }
+        if (isTransactional) {
+            kafkaProducer.commitTransaction();
+        }
+    }
+
+    /**
+     * Producer sends n times given mapping to Kafka. After every loop of mappings is transaction committed if transactional.id is specified.
+     * @param times
+     */
+    public void produce(int times) {
+        int messages = mappings.stream()
+                .mapToInt((m) -> m.getMessages())
+                .sum();
+        stats = new NetworkStats(times * messages);
+
+        for (int i = 0; i < times; i++) {
+            if (isTransactional) {
+                kafkaProducer.beginTransaction();
+            }
+
+            for(TopicMapping mapping : mappings) {
+                for(int j = 0; j < mapping.getMessages(); j++) {
+                    kafkaProducer.send(
+                            new ProducerRecord<>(mapping.getTopicName(), null, mapping.getPayload()),
+                            new ProducerCallback(stats, mapping.getByteSize()));
+                }
+            }
+
+            if (isTransactional) {
+                kafkaProducer.commitTransaction();
+            }
+        }
+    }
+
+    /**
+     * Closes Kafka instance in this class and prints results.
+     */
+    public void close() {
+        kafkaProducer.close();
+        stats.printResults();
+    }
+}

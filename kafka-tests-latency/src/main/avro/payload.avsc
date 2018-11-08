@@ -1,0 +1,10 @@
+{
+  "namespace": "cz.muni.fi.sdipr.kafka.latency.avro",
+  "type": "record",
+  "name": "Payload",
+  "fields": [
+    {"name": "payload", "type": "string"},
+    {"name": "producer_time", "type": "long"},
+    {"name": "consumer_time", "type": "long"}
+  ]
+}
