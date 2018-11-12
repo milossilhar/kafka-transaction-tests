@@ -3,6 +3,7 @@ package cz.muni.fi.sdipr.kafka.common;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Objects;
 
@@ -61,6 +62,12 @@ public class TopicMapping {
     public byte[] getPayload() {
         return payload;
     }
+
+    /**
+     * Returns created random payload of byteSize size as String.
+     * @return String of specific size.
+     */
+    public String getStringPayload() { return new String(payload, StandardCharsets.UTF_8); }
 
     @Override
     public boolean equals(Object o) {
