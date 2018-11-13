@@ -9,6 +9,7 @@ import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +46,8 @@ public class ProducerRunnable implements Runnable {
         this.mappings = mappings;
         this.isTransactional = new AtomicBoolean(properties.hasProperty("transactional.id"));
 
-        properties.addProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        properties.addProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
+        properties.addProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        properties.addProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
 
         logger.info("Creating ProducerRunnable with properties ...");
         properties.logProperties();
@@ -61,7 +62,7 @@ public class ProducerRunnable implements Runnable {
 
             logger.info("Sleeping for 0.5s ...");
             Thread.sleep(500);
-            logger.info("Starting producer ...");
+            logger.info("Starting ...");
             Producer<String, byte[]> kafkaProducer = new KafkaProducer<>(properties.getProperties());
 
             try {

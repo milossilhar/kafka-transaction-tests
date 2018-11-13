@@ -8,6 +8,7 @@ import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -45,8 +46,8 @@ public class ConsumerRunnable implements Runnable {
         this.repeats = repeats;
         this.mappings = mappings;
 
-        properties.addProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        properties.addProperty("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        properties.addProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
+        properties.addProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArrayDeserializer");
 
         logger.info("Creating ConsumerRunnable with properties ...");
         properties.logProperties();
@@ -77,7 +78,7 @@ public class ConsumerRunnable implements Runnable {
                     decoder = DecoderFactory.get().binaryDecoder(record.value(), decoder);
                     payload = reader.read(payload, decoder);
 
-                    stats.recordMessage(System.nanoTime() - payload.getProducerTime(), 1);
+                    stats.recordLatency(System.nanoTime() - payload.getProducerTime());
                 }
             }
         } catch (IOException exp) {
@@ -85,7 +86,7 @@ public class ConsumerRunnable implements Runnable {
         } finally {
             logger.info("Shutting down ...");
             kafkaConsumer.close();
-            stats.printResults();
+            stats.printLatencyResults();
         }
     }
 }

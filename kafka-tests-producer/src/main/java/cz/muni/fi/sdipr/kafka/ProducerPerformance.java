@@ -5,6 +5,7 @@ import cz.muni.fi.sdipr.kafka.common.PropertiesLoader;
 import cz.muni.fi.sdipr.kafka.common.TopicMapping;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +30,8 @@ public class ProducerPerformance {
         this.mappings = mappings;
         this.isTransactional = properties.hasProperty("transactional.id");
 
-        properties.addProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        properties.addProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
+        properties.addProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        properties.addProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
 
         logger.info("Creating ProducerPerformance with properties ...");
         properties.logProperties();

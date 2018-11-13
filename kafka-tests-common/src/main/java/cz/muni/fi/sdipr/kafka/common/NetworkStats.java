@@ -22,6 +22,7 @@ public class NetworkStats {
     private long        messagesSent;
     private long        bytesSent;
     private long        totalMessages;
+    private long        sampling;
     private List<Long>  latencies;
 
     /**
@@ -34,6 +35,7 @@ public class NetworkStats {
         this.bytesSent     = 0;
         this.totalMessages = numberOfRecords;
         this.latencies     = new ArrayList<>(numberOfRecords);
+        this.sampling      = Math.max(totalMessages / 10, 1); // sampling every 10% of total messages or every message if total is too low
     }
 
     /**
@@ -45,8 +47,20 @@ public class NetworkStats {
         latencies.add(latency);
         bytesSent += bytes;
         messagesSent++;
-        if (messagesSent % (totalMessages / 10) == 0) {
+        if (messagesSent % sampling == 0) {
             printPartialResults();
+        }
+    }
+
+    /**
+     *
+     * @param latency
+     */
+    public void recordLatency(long latency) {
+        latencies.add(latency);
+        messagesSent++;
+        if (messagesSent % sampling == 0) {
+            printPartialLatencyResults();
         }
     }
 
@@ -54,12 +68,11 @@ public class NetworkStats {
      * Prints or rather logs (info level) results to configured output in logback.xml.
      */
     public void printResults() {
-        long elapsed = System.nanoTime() - startTime;
-        double elapsedSeconds = elapsed / NANOSECOND_TO_SECOND;
+        double elapsedNano = System.nanoTime() - startTime;
 
         // network speed calculations
-        double messagesPerSec  = messagesSent / elapsedSeconds;
-        double bytesPerSec = bytesSent / elapsedSeconds;
+        double messagesPerNanoSec  = messagesSent / elapsedNano;
+        double bytesPerNanoSec = bytesSent / elapsedNano;
 
         // latencies statistics
         double averageLatency = latencies.stream()
@@ -71,9 +84,10 @@ public class NetworkStats {
         double maxLatency = latencies.stream()
                 .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
                 .max().getAsDouble();
-        logger.info("Final results (total time: {}s)", elapsedSeconds);
-        logger.info("{} messages sent, {} MB sent", messagesSent, bytesSent / BYTES_TO_MEGABYTES);
-        logger.info("{} msg/s, bytes per sec: {} MB/s", messagesPerSec, bytesPerSec / BYTES_TO_MEGABYTES);
+
+        logger.info("Final results (total time: {}s)", elapsedNano / NANOSECOND_TO_SECOND);
+        logger.info("{} message(s) sent, {} MB sent", messagesSent, bytesSent / BYTES_TO_MEGABYTES);
+        logger.info("{} msg/s, bytes per sec: {} MB/s", messagesPerNanoSec / NANOSECOND_TO_SECOND, (bytesPerNanoSec / NANOSECOND_TO_SECOND) / BYTES_TO_MEGABYTES);
         logger.info("{} ms average latency, {} ms minimum latency, {} ms maximum latency", averageLatency, minLatency, maxLatency);
     }
 
@@ -91,4 +105,37 @@ public class NetworkStats {
         logger.info("Messages sent {} (elapsed time: {}s) speed: {} msg/s {} MB/s",
                 messagesSent, elapsedSeconds, messagesPerSec, bytesPerSec / BYTES_TO_MEGABYTES);
     }
+
+    /**
+     * Prints or rather logs (info level) only latency results to configured output in logback.xml.
+     */
+    public void printLatencyResults() {
+        double elapsedNano = System.nanoTime() - startTime;
+
+        // latencies statistics
+        double averageLatency = latencies.stream()
+                .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
+                .average().getAsDouble();
+        double minLatency = latencies.stream()
+                .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
+                .min().getAsDouble();
+        double maxLatency = latencies.stream()
+                .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
+                .max().getAsDouble();
+
+        logger.info("Final results (total time: {}s)", elapsedNano / NANOSECOND_TO_SECOND);
+        logger.info("{} message(s) received", messagesSent);
+        logger.info("{} ms average latency, {} ms minimum latency, {} ms maximum latency", averageLatency, minLatency, maxLatency);
+    }
+
+    /**
+     * Prints or rather logs (info level) partial latency results when every 10% messages are sent.
+     */
+    public void printPartialLatencyResults() {
+        long elapsed = System.nanoTime() - startTime;
+        double elapsedSeconds = elapsed / NANOSECOND_TO_SECOND;
+
+        logger.info("Messages received {} (elapsed time: {}s)", messagesSent, elapsedSeconds);
+    }
+
 }
