@@ -27,6 +27,9 @@ public class App
 {
     private static Logger logger = LoggerFactory.getLogger(App.class);
 
+    private static final String DEFAULT_PRODUCER_PROP_FILE = "producer.properties";
+    private static final int DEFAULT_REPEATS = 1;
+
     public static void main( String[] args )  {
 
         Options options = createArguments();
@@ -35,9 +38,13 @@ public class App
             CommandLineParser parser = new DefaultParser();
             CommandLine line = parser.parse(options, args, false);
 
-            File propFile = PatternOptionBuilder.FILE_VALUE.cast(line.getParsedOptionValue("producer-props"));
-            Number repeatsNumber = PatternOptionBuilder.NUMBER_VALUE.cast(line.getParsedOptionValue("repeats"));
-            int repeats = repeatsNumber == null ? 1 : repeatsNumber.intValue();
+            File propFile = line.hasOption("producer-props") ?
+                    PatternOptionBuilder.FILE_VALUE.cast(line.getParsedOptionValue("producer-props")) :
+                    new File(DEFAULT_PRODUCER_PROP_FILE);
+            Number repeatsNumber = line.hasOption("repeats") ?
+                    PatternOptionBuilder.NUMBER_VALUE.cast(line.getParsedOptionValue("repeats")) :
+                    new Integer(DEFAULT_REPEATS);
+            int repeats = repeatsNumber.intValue();
             String[] topicMapping = line.getOptionValues("topic-mapping");
 
             List<TopicMapping> mappings = TopicMappings.parse(topicMapping);
@@ -68,11 +75,11 @@ public class App
 
         Option props = Option.builder("p")
                 .longOpt("producer-props")
-                .required()
+                .required(false)
                 .hasArg()
                 .argName("file")
                 .type(PatternOptionBuilder.FILE_VALUE)
-                .desc("path to producer props file")
+                .desc("path to producer props file\n[default: ./producer.properties]")
                 .build();
 
         Option repeats = Option.builder("n")

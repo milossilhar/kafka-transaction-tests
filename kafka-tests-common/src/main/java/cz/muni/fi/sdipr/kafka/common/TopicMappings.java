@@ -18,7 +18,7 @@ public class TopicMappings {
 
     /**
      * Parses raw topic mapping and creates {@link TopicMapping} objects.
-     * @param rawTopicMapping Parsed topic mapping from command line.
+     * @param rawTopicMapping Parsed topic mappings from command line.
      */
     public static List<TopicMapping> parse(String[] rawTopicMapping) {
         if (rawTopicMapping == null) {
@@ -46,5 +46,32 @@ public class TopicMappings {
         }
 
         return mappings;
+    }
+
+    /**
+     * Parses raw one topic mapping and creates {@link TopicMapping} object.
+     * @param rawTopicMapping Parsed topic mapping from command line.
+     */
+    public static TopicMapping parseMapping(String[] rawTopicMapping) {
+        if (rawTopicMapping == null) {
+            throw new IllegalArgumentException("rawTopicMapping is null");
+        }
+        if (rawTopicMapping.length != 3 && rawTopicMapping.length != 2) {
+            throw new ParseMappingException("rawTopicMapping should be in format name[string],{count[int]},size[int]");
+        }
+
+        boolean hasCount = rawTopicMapping.length == 3;
+
+        String name     = rawTopicMapping[0];
+        String messages = hasCount ? rawTopicMapping[1] : "1";
+        String size     = hasCount ? rawTopicMapping[2] : rawTopicMapping[1];
+
+        try {
+            int numberMessages = Integer.parseInt(messages);
+            int sizeBytes      = Integer.parseInt(size);
+            return new TopicMapping(name, numberMessages, sizeBytes);
+        } catch (NumberFormatException exp) {
+            throw new ParseMappingException(exp.getMessage(), exp);
+        }
     }
 }

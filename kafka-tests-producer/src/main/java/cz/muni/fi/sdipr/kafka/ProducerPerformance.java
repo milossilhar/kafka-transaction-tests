@@ -1,6 +1,7 @@
 package cz.muni.fi.sdipr.kafka;
 
 import cz.muni.fi.sdipr.kafka.common.NetworkStats;
+import cz.muni.fi.sdipr.kafka.common.ProducerCallback;
 import cz.muni.fi.sdipr.kafka.common.PropertiesLoader;
 import cz.muni.fi.sdipr.kafka.common.TopicMapping;
 import org.apache.kafka.clients.producer.KafkaProducer;

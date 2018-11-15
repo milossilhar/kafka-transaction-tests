@@ -1,6 +1,5 @@
-package cz.muni.fi.sdipr.kafka;
+package cz.muni.fi.sdipr.kafka.common;
 
-import cz.muni.fi.sdipr.kafka.common.NetworkStats;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;

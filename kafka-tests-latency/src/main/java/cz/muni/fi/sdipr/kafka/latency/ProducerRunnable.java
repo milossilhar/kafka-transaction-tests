@@ -1,5 +1,7 @@
 package cz.muni.fi.sdipr.kafka.latency;
 
+import cz.muni.fi.sdipr.kafka.common.NetworkStats;
+import cz.muni.fi.sdipr.kafka.common.ProducerCallback;
 import cz.muni.fi.sdipr.kafka.common.PropertiesLoader;
 import cz.muni.fi.sdipr.kafka.common.TopicMapping;
 import cz.muni.fi.sdipr.kafka.latency.avro.Payload;
@@ -8,9 +10,10 @@ import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +31,9 @@ public class ProducerRunnable implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ProducerRunnable.class);
 
-    public static final String WARMUP_STRING = "warmupdata";
+    private static final String WARMUP_STRING = "warmupdata";
+    private static final int    INIT_WAIT     = 500; // milliseconds
+    private static final int    FINAL_WAIT    = 1000; // milliseconds before consumer is shut down
 
     private int repeats;
 
@@ -44,10 +49,10 @@ public class ProducerRunnable implements Runnable {
         this.stopConsumer = stopConsumer;
         this.repeats = repeats;
         this.mappings = mappings;
-        this.isTransactional = new AtomicBoolean(properties.hasProperty("transactional.id"));
+        this.isTransactional = new AtomicBoolean(properties.hasProperty(ProducerConfig.TRANSACTIONAL_ID_CONFIG));
 
-        properties.addProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-        properties.addProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
+        properties.addProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getCanonicalName());
+        properties.addProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getCanonicalName());
 
         logger.info("Creating ProducerRunnable with properties ...");
         properties.logProperties();
@@ -57,13 +62,15 @@ public class ProducerRunnable implements Runnable {
     @Override
     public void run() {
         try {
-            logger.info("Waiting for consumer to startup ...");
+            logger.info("Waiting to start ...");
             startProducer.await();
 
-            logger.info("Sleeping for 0.5s ...");
-            Thread.sleep(500);
-            logger.info("Starting ...");
-            Producer<String, byte[]> kafkaProducer = new KafkaProducer<>(properties.getProperties());
+            logger.info("Initial wait for {}ms ...", INIT_WAIT);
+            Thread.sleep(INIT_WAIT);
+
+            int messages = mappings.stream().mapToInt(TopicMapping::getMessages).sum();
+            KafkaProducer<String, byte[]> kafkaProducer = new KafkaProducer<>(properties.getProperties());
+            NetworkStats stats = new NetworkStats(repeats * messages);
 
             try {
 
@@ -87,7 +94,8 @@ public class ProducerRunnable implements Runnable {
                             writer.write(payload, encoder);
                             encoder.flush();
 
-                            kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), null, out.toByteArray()));
+                            kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), out.toByteArray()),
+                                    new ProducerCallback(stats, mapping.getByteSize()));
                             out.reset();
                         }
                     }
@@ -100,8 +108,8 @@ public class ProducerRunnable implements Runnable {
                 logger.error(exp.getMessage());
             } finally {
                 kafkaProducer.close();
-                logger.info("Sent all messages ...");
-                Thread.sleep(1000);
+                stats.printResults();
+                Thread.sleep(FINAL_WAIT);
                 logger.info("Shutting down consumer ...");
                 stopConsumer.set(true);
             }

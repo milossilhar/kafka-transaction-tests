@@ -82,6 +82,6 @@ public class PropertiesLoader {
                     return stringBuilder.toString();
                 })
                 .collect(Collectors.joining());
-        logger.info("Configured properties ..." + System.lineSeparator() + propertiesString);
+        logger.info("Configured properties ..." + System.lineSeparator() + System.lineSeparator() + propertiesString);
     }
 }

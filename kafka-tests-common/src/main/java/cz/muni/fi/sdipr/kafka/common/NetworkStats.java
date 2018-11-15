@@ -3,8 +3,20 @@ package cz.muni.fi.sdipr.kafka.common;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -14,9 +26,18 @@ public class NetworkStats {
 
     private Logger logger = LoggerFactory.getLogger(NetworkStats.class);
 
-    private static final double NANOSECOND_TO_SECOND = 1.0e9;
-    private static final double NANOSECOND_TO_MILLISECOND = 1.0e6;
-    private static final double BYTES_TO_MEGABYTES = 1024.0 * 1024.0;
+    private static DecimalFormat secondFormat       = new DecimalFormat("#.### s");
+    private static DecimalFormat millisecondFormat  = new DecimalFormat("#.###### ms");
+    private static DecimalFormat bytesFormat        = new DecimalFormat("#.### MB");
+    private static DecimalFormat bytesPerSecFormat        = new DecimalFormat("#.### MB/s");
+    private static DecimalFormat messagesFormat     = new DecimalFormat("#.# msg/s");
+
+    private static final double SAMPLING_PERCENTAGE = 0.25;
+
+    public static final double NANOSECOND_TO_SECOND         = 1.0e9;
+    public static final double NANOSECOND_TO_MILLISECOND    = 1.0e6;
+    public static final double BYTES_TO_MEGABYTES           = 1024.0 * 1024.0;
+    public static final double BYTES_TO_KILOBYTES           = 1024.0;
 
     private long        startTime;
     private long        messagesSent;
@@ -35,7 +56,14 @@ public class NetworkStats {
         this.bytesSent     = 0;
         this.totalMessages = numberOfRecords;
         this.latencies     = new ArrayList<>(numberOfRecords);
-        this.sampling      = Math.max(totalMessages / 10, 1); // sampling every 10% of total messages or every message if total is too low
+        this.sampling      = (long) Math.max(totalMessages * SAMPLING_PERCENTAGE, 1.0);
+    }
+
+    /**
+     * Sets start time tu actual system time
+     */
+    public void setStartTime() {
+        this.startTime = System.nanoTime();
     }
 
     /**
@@ -68,27 +96,22 @@ public class NetworkStats {
      * Prints or rather logs (info level) results to configured output in logback.xml.
      */
     public void printResults() {
-        double elapsedNano = System.nanoTime() - startTime;
+        long elapsedNano = System.nanoTime() - startTime;
+        double elapsedSeconds = elapsedNano / NANOSECOND_TO_SECOND;
 
         // network speed calculations
-        double messagesPerNanoSec  = messagesSent / elapsedNano;
-        double bytesPerNanoSec = bytesSent / elapsedNano;
+        double messagesPerSec  = messagesSent / elapsedSeconds;
+        double bytesPerSec = bytesSent / elapsedSeconds;
 
-        // latencies statistics
-        double averageLatency = latencies.stream()
-                .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
-                .average().getAsDouble();
-        double minLatency = latencies.stream()
-                .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
-                .min().getAsDouble();
-        double maxLatency = latencies.stream()
-                .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
-                .max().getAsDouble();
-
-        logger.info("Final results (total time: {}s)", elapsedNano / NANOSECOND_TO_SECOND);
-        logger.info("{} message(s) sent, {} MB sent", messagesSent, bytesSent / BYTES_TO_MEGABYTES);
-        logger.info("{} msg/s, bytes per sec: {} MB/s", messagesPerNanoSec / NANOSECOND_TO_SECOND, (bytesPerNanoSec / NANOSECOND_TO_SECOND) / BYTES_TO_MEGABYTES);
-        logger.info("{} ms average latency, {} ms minimum latency, {} ms maximum latency", averageLatency, minLatency, maxLatency);
+        logger.info("Final results (total time: {})",
+                secondFormat.format(elapsedSeconds));
+        logger.info("Size: {} message(s) sent, {} sent",
+                messagesSent, bytesFormat.format(bytesSent / BYTES_TO_MEGABYTES));
+        logger.info("Speed: {}, bytes per sec: {}",
+                messagesFormat.format(messagesPerSec),
+                bytesPerSecFormat.format(bytesPerSec / BYTES_TO_MEGABYTES));
+        printLatencies();
+        printPercentiles(0.5, 0.95, 0.99);
     }
 
     /**
@@ -99,33 +122,24 @@ public class NetworkStats {
         double elapsedSeconds = elapsed / NANOSECOND_TO_SECOND;
 
         // network speed calculations
-        double messagesPerSec  = messagesSent / elapsedSeconds;
         double bytesPerSec = bytesSent / elapsedSeconds;
 
-        logger.info("Messages sent {} (elapsed time: {}s) speed: {} msg/s {} MB/s",
-                messagesSent, elapsedSeconds, messagesPerSec, bytesPerSec / BYTES_TO_MEGABYTES);
+        logger.info("Messages sent {} (elapsed time: {}) size: {} [{}]",
+                messagesSent, secondFormat.format(elapsedSeconds), bytesFormat.format(bytesSent / BYTES_TO_MEGABYTES),
+                bytesPerSecFormat.format(bytesPerSec / BYTES_TO_MEGABYTES));
     }
 
     /**
      * Prints or rather logs (info level) only latency results to configured output in logback.xml.
      */
     public void printLatencyResults() {
-        double elapsedNano = System.nanoTime() - startTime;
+        long elapsedNano = System.nanoTime() - startTime;
+        double elapsedSeconds = elapsedNano / NANOSECOND_TO_SECOND;
 
-        // latencies statistics
-        double averageLatency = latencies.stream()
-                .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
-                .average().getAsDouble();
-        double minLatency = latencies.stream()
-                .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
-                .min().getAsDouble();
-        double maxLatency = latencies.stream()
-                .mapToDouble((latency) -> latency / NANOSECOND_TO_MILLISECOND)
-                .max().getAsDouble();
-
-        logger.info("Final results (total time: {}s)", elapsedNano / NANOSECOND_TO_SECOND);
-        logger.info("{} message(s) received", messagesSent);
-        logger.info("{} ms average latency, {} ms minimum latency, {} ms maximum latency", averageLatency, minLatency, maxLatency);
+        logger.info("Final results (total time: {})", secondFormat.format(elapsedSeconds));
+        logger.info("Size: {} message(s) received", messagesSent);
+        printLatencies();
+        printPercentiles(0.5, 0.95, 0.99);
     }
 
     /**
@@ -135,7 +149,69 @@ public class NetworkStats {
         long elapsed = System.nanoTime() - startTime;
         double elapsedSeconds = elapsed / NANOSECOND_TO_SECOND;
 
-        logger.info("Messages received {} (elapsed time: {}s)", messagesSent, elapsedSeconds);
+        logger.info("Message(s) received {} (elapsed time: {})",
+                messagesSent, secondFormat.format(elapsedSeconds));
     }
 
+    /**
+     * Prints all latencies to output file.
+     * @param output File to write latencies to.
+     */
+    public void printRawLatencies(File output) {
+        PrintWriter printWriter = null;
+        try {
+            FileWriter fileWriter = new FileWriter(output);
+            printWriter = new PrintWriter(fileWriter);
+            for (Long latency : latencies) {
+                printWriter.println(latency);
+            }
+        } catch (IOException exp) {
+
+        } finally {
+            if (printWriter != null) {
+                printWriter.close();
+            }
+        }
+    }
+
+    private void printLatencies() {
+        DoubleSummaryStatistics latencyStatistics = latencies.stream()
+                .mapToDouble(latency -> latency / NANOSECOND_TO_MILLISECOND)
+                .summaryStatistics();
+
+        logger.info("Latencies:");
+        logger.info("{} average, {} minimum, {} maximum",
+                millisecondFormat.format(latencyStatistics.getAverage()),
+                millisecondFormat.format(latencyStatistics.getMin()),
+                millisecondFormat.format(latencyStatistics.getMax()));
+    }
+
+    private void printPercentiles(Double... percentiles) {
+        List<Long> values = percentiles(percentiles);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < values.size(); i++) {
+            Double percent = percentiles[i] * 100;
+            stringBuilder.append(millisecondFormat.format(values.get(i) / NANOSECOND_TO_MILLISECOND));
+            stringBuilder.append(" ");
+            stringBuilder.append(percent.intValue());
+            stringBuilder.append("th");
+            if (i < values.size() - 1) stringBuilder.append(", ");
+        }
+        logger.info(stringBuilder.toString());
+    }
+
+    private List<Long> percentiles(Double... percentiles) {
+        int size = latencies.size();
+
+        List<Integer> indexes = Arrays.stream(percentiles)
+                .map(value -> (int) (value * (size - 1)))
+                .collect(Collectors.toList());
+
+        List<Long> sortedLatencies  = new ArrayList<>(latencies);
+        sortedLatencies.sort(Comparator.naturalOrder());
+
+        return indexes.stream()
+                .map(i -> (sortedLatencies.size()) == 0 ? Long.valueOf(0) : sortedLatencies.get(i))
+                .collect(Collectors.toList());
+    }
 }
