@@ -26,13 +26,14 @@ public class NetworkStats {
 
     private Logger logger = LoggerFactory.getLogger(NetworkStats.class);
 
-    private static DecimalFormat secondFormat       = new DecimalFormat("#.### s");
-    private static DecimalFormat millisecondFormat  = new DecimalFormat("#.###### ms");
-    private static DecimalFormat bytesFormat        = new DecimalFormat("#.### MB");
-    private static DecimalFormat bytesPerSecFormat        = new DecimalFormat("#.### MB/s");
-    private static DecimalFormat messagesFormat     = new DecimalFormat("#.# msg/s");
+    private static DecimalFormat secondFormat           = new DecimalFormat("#.### s");
+    private static DecimalFormat millisecondFormat      = new DecimalFormat("#.###### ms");
+    private static DecimalFormat bytesFormat            = new DecimalFormat("#.### MB");
+    private static DecimalFormat megaBytesPerSecFormat  = new DecimalFormat("#.### MB/s");
+    private static DecimalFormat kiloBytesPerSecFormat  = new DecimalFormat("#.### kB/s");
+    private static DecimalFormat messagesFormat         = new DecimalFormat("#.# msg/s");
 
-    private static final double SAMPLING_PERCENTAGE = 0.25;
+    private static final double SAMPLING_PERCENTAGE = 0.1;
 
     public static final double NANOSECOND_TO_SECOND         = 1.0e9;
     public static final double NANOSECOND_TO_MILLISECOND    = 1.0e6;
@@ -101,7 +102,6 @@ public class NetworkStats {
 
         // network speed calculations
         double messagesPerSec  = messagesSent / elapsedSeconds;
-        double bytesPerSec = bytesSent / elapsedSeconds;
 
         logger.info("Final results (total time: {})",
                 secondFormat.format(elapsedSeconds));
@@ -109,7 +109,7 @@ public class NetworkStats {
                 messagesSent, bytesFormat.format(bytesSent / BYTES_TO_MEGABYTES));
         logger.info("Speed: {}, bytes per sec: {}",
                 messagesFormat.format(messagesPerSec),
-                bytesPerSecFormat.format(bytesPerSec / BYTES_TO_MEGABYTES));
+                getBytesPerSecond(elapsedSeconds));
         printLatencies();
         printPercentiles(0.5, 0.95, 0.99);
     }
@@ -121,12 +121,9 @@ public class NetworkStats {
         long elapsed = System.nanoTime() - startTime;
         double elapsedSeconds = elapsed / NANOSECOND_TO_SECOND;
 
-        // network speed calculations
-        double bytesPerSec = bytesSent / elapsedSeconds;
-
         logger.info("Messages sent {} (elapsed time: {}) size: {} [{}]",
                 messagesSent, secondFormat.format(elapsedSeconds), bytesFormat.format(bytesSent / BYTES_TO_MEGABYTES),
-                bytesPerSecFormat.format(bytesPerSec / BYTES_TO_MEGABYTES));
+                getBytesPerSecond(elapsedSeconds));
     }
 
     /**
@@ -171,6 +168,16 @@ public class NetworkStats {
             if (printWriter != null) {
                 printWriter.close();
             }
+        }
+    }
+
+    private String getBytesPerSecond(double elapsedSeconds) {
+        double bytesPerSec = bytesSent / elapsedSeconds;
+
+        if (bytesPerSec / BYTES_TO_MEGABYTES < 1.0) {
+            return kiloBytesPerSecFormat.format(bytesPerSec / BYTES_TO_KILOBYTES);
+        } else {
+            return megaBytesPerSecFormat.format(bytesPerSec / BYTES_TO_MEGABYTES);
         }
     }
 

@@ -96,7 +96,6 @@ public class ConsumerProducerRunnable implements Runnable {
             logger.info("consumer - Polling first messages ...");
             kafkaConsumer.poll(Duration.ofMillis(100));
 
-            logger.info("producer - transactional {}", isTransactional);
             if (isTransactional) { kafkaProducer.initTransactions(); }
 
             consumerStats.setStartTime();

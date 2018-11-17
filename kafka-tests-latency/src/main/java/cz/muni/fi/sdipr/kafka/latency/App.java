@@ -36,7 +36,6 @@ public class App {
 
     private static final String DEFAULT_CONSUMER_PROP_FILE = "consumer.properties";
     private static final String DEFAULT_PRODUCER_PROP_FILE = "producer.properties";
-    private static final String DEFAULT_RAW_OUTPUT_FILE    = "latencies.csv";
     private static final int DEFAULT_REPEATS = 1;
 
     public static void main(String[] args) {
@@ -152,16 +151,6 @@ public class App {
                 .desc("Runs only producer in standalone mode. Cannot use with -C")
                 .build();
 
-        Option rawOutput = Option.builder("r")
-                .longOpt("raw-file")
-                .required(false)
-                .hasArg()
-                .optionalArg(true)
-                .argName("file")
-                .type(PatternOptionBuilder.FILE_VALUE)
-                .desc("Path to producer props file" + System.lineSeparator() + "default: " + DEFAULT_PRODUCER_PROP_FILE)
-                .build();
-
         Option repeats = Option.builder("n")
                 .longOpt("repeats")
                 .required(false)
@@ -195,7 +184,6 @@ public class App {
         options.addOption(propsConsumer);
         options.addOption(consumerAlone);
         options.addOption(producerAlone);
-        options.addOption(rawOutput);
         options.addOption(repeats);
         options.addOption(topicMapping);
         options.addOption(topic);
