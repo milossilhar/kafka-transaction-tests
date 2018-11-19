@@ -12,7 +12,7 @@ if [ "$#" -ne "0" ]; then
   exit
 fi
 
-# Location of kafka-server-start.sh binary
+# Location of kafka-server-stop.sh binary
 BINARY_LOCATION="../kafka/bin"
 
 ${BINARY_LOCATION}/kafka-server-stop.sh && echo "Kafka server(s) stopped"
