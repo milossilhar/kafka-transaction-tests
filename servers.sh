@@ -80,10 +80,6 @@ fi
 
 if [ $IS_SAME_ZOO -eq "0" ]; then
   ZOO_SERVER=${ZOOKEEPER[0]}
-  ssh $ZOO_SERVER <<ENDSSH
-  cd ~/dp
-  ./kafka/bin/zookeeper-server-start.sh -daemon ./kafka-transaction-tests/configs/zookeeper_single.properties
-  ENDSSH
 else
   for zoo in ${ZOOKEEPER[@]}; do
     

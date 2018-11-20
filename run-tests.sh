@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 now=$(date +"%Y-%m-%d-%H-%M")
 
@@ -32,3 +32,4 @@ mvn exec:java -Dexec.args="-p ${property_file}  -n ${repeats} -m ${gps_name},10,
 
 # 10 000 transactions 50 gps, 10 im, 20 store
 mvn exec:java -Dexec.args="-p ${property_file}  -n ${repeats} -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}" | tee ~/producer-result-50-10-20_${now}
+

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Stop executing after first command fails
 set -e
