@@ -14,7 +14,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PatternOptionBuilder;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.metrics.stats.Count;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -86,9 +82,9 @@ public class App {
 
 
             if (line.hasOption("producer-alone")) {
-                ProducerPerformance producerPerformance = new ProducerPerformance(producerProperties, mappings);
-                producerPerformance.produce(repeats);
-                producerPerformance.close();
+                ProducerTest producerTest = new ProducerTest(producerProperties, mappings);
+                producerTest.produce(repeats);
+                producerTest.close();
             }
             else if (line.hasOption("topic")) {
                 ConsumerProducerRunnable consumerProducerRunnable =

@@ -16,9 +16,9 @@ import java.util.List;
 /**
  * @author Milos Silhar
  */
-public class ProducerPerformance {
+public class ProducerTest {
 
-    private Logger logger = LoggerFactory.getLogger(ProducerPerformance.class);
+    private Logger logger = LoggerFactory.getLogger(ProducerTest.class);
 
     private static final String WARMUP_STRING = "warmupdata";
 
@@ -27,7 +27,7 @@ public class ProducerPerformance {
     private List<TopicMapping> mappings;
     private NetworkStats stats;
 
-    public ProducerPerformance(PropertiesLoader properties, List<TopicMapping> mappings) {
+    public ProducerTest(PropertiesLoader properties, List<TopicMapping> mappings) {
         this.mappings = mappings;
         this.isTransactional = properties.hasProperty("transactional.id");
 
