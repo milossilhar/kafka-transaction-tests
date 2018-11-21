@@ -1,4 +1,4 @@
-package cz.muni.fi.sdipr.kafka;
+package cz.muni.fi.sdipr.kafka.latency;
 
 import cz.muni.fi.sdipr.kafka.common.NetworkStats;
 import cz.muni.fi.sdipr.kafka.common.ProducerCallback;
@@ -33,9 +33,7 @@ public class ProducerPerformance {
 
         properties.addProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         properties.addProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
-
-        logger.info("Creating ProducerPerformance with properties ...");
-        properties.logProperties();
+        properties.logProperties("producer");
 
         kafkaProducer = new KafkaProducer<>(properties.getProperties());
 
@@ -64,9 +62,7 @@ public class ProducerPerformance {
         stats = new NetworkStats(times * messagesInTransaction);
 
         for (int i = 0; i < times; i++) {
-            if (isTransactional) {
-                kafkaProducer.beginTransaction();
-            }
+            if (isTransactional) { kafkaProducer.beginTransaction(); }
 
             for(TopicMapping mapping : mappings) {
                 for(int j = 0; j < mapping.getMessages(); j++) {
@@ -76,9 +72,7 @@ public class ProducerPerformance {
                 }
             }
 
-            if (isTransactional) {
-                kafkaProducer.commitTransaction();
-            }
+            if (isTransactional) { kafkaProducer.commitTransaction(); }
         }
     }
 

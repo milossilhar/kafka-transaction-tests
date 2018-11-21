@@ -28,7 +28,7 @@ public class TopicMapping {
         PayloadFactory payloadFactory = new PayloadFactory(byteSize);
         this.payload = payloadFactory.getPayload();
 
-        logger.info("Created TopicMapping to {} send {} x {} B msg(s)", topicName, messages, byteSize);
+        logger.info("To \"{}\" send {} x {} B msg(s)", topicName, messages, byteSize);
     }
 
     /**

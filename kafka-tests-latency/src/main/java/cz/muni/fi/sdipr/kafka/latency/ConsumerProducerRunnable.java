@@ -57,19 +57,18 @@ public class ConsumerProducerRunnable implements Runnable {
 
         consumerProperties.addProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
         consumerProperties.addProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
-        logger.info("Creating ConsumerProducerRunnable with consumer properties ...");
-        consumerProperties.logProperties();
+        consumerProperties.logProperties("consumer");
         this.consumerProperties = consumerProperties;
 
         producerProperties.addProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getCanonicalName());
         producerProperties.addProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getCanonicalName());
-        logger.info("Creating ConsumerProducerRunnable with producer properties ...");
-        producerProperties.logProperties();
+        producerProperties.logProperties("producer");
         this.producerProperties = producerProperties;
     }
 
     @Override
     public void run() {
+        logger.info("Total messages: {} x {} = {}", repeats, mapping.getMessages(), repeats * mapping.getMessages());
         NetworkStats consumerStats = new NetworkStats(repeats * mapping.getMessages());
         NetworkStats producerStats = new NetworkStats(repeats * mapping.getMessages());
 
@@ -88,13 +87,7 @@ public class ConsumerProducerRunnable implements Runnable {
         Payload consumedPayload     = null;
 
         try {
-            logger.info("consumer - Subscribing to topics ...");
             kafkaConsumer.subscribe(Collections.singletonList(mapping.getTopicName()));
-            logger.info("consumer - Seeking end ...");
-            kafkaConsumer.seekToEnd(Collections.emptyList());
-
-            logger.info("consumer - Polling first messages ...");
-            kafkaConsumer.poll(Duration.ofMillis(100));
 
             if (isTransactional) { kafkaProducer.initTransactions(); }
 
@@ -116,6 +109,7 @@ public class ConsumerProducerRunnable implements Runnable {
                 }
 
                 if (isTransactional) { kafkaProducer.commitTransaction(); }
+                logger.info("Transaction {} commited ...", i);
 
                 int countDownLatch = mapping.getMessages();
                 while (countDownLatch > 0) {
@@ -128,6 +122,8 @@ public class ConsumerProducerRunnable implements Runnable {
                     }
                 }
             }
+            consumerStats.setStopTime();
+            producerStats.setStopTime();
         } catch (IOException exp) {
             logger.error(exp.getMessage());
         } finally {

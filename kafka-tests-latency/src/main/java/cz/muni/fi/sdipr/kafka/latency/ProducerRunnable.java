@@ -31,9 +31,8 @@ public class ProducerRunnable implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ProducerRunnable.class);
 
-    private static final String WARMUP_STRING = "warmupdata";
     private static final int    INIT_WAIT     = 500; // milliseconds
-    private static final int    FINAL_WAIT    = 1000; // milliseconds before consumer is shut down
+    private static final int    FINAL_WAIT    = 2000; // milliseconds before consumer is shut down
 
     private int repeats;
 
@@ -41,21 +40,20 @@ public class ProducerRunnable implements Runnable {
     private List<TopicMapping>  mappings;
     private AtomicBoolean       isTransactional;
     private CountDownLatch      startProducer;
-    private AtomicBoolean       stopConsumer;
+    private CountDownLatch      printProducer;
 
-    public ProducerRunnable(CountDownLatch startProducer, AtomicBoolean stopConsumer, int repeats,
+    public ProducerRunnable(CountDownLatch startProducer, CountDownLatch printProducer, int repeats,
                             PropertiesLoader properties, List<TopicMapping> mappings) {
         this.startProducer = startProducer;
-        this.stopConsumer = stopConsumer;
+        this.printProducer = printProducer;
         this.repeats = repeats;
         this.mappings = mappings;
         this.isTransactional = new AtomicBoolean(properties.hasProperty(ProducerConfig.TRANSACTIONAL_ID_CONFIG));
 
         properties.addProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getCanonicalName());
         properties.addProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class.getCanonicalName());
+        properties.logProperties("producer");
 
-        logger.info("Creating ProducerRunnable with properties ...");
-        properties.logProperties();
         this.properties = properties;
     }
 
@@ -65,7 +63,6 @@ public class ProducerRunnable implements Runnable {
             logger.info("Waiting to start ...");
             startProducer.await();
 
-            logger.info("Initial wait for {}ms ...", INIT_WAIT);
             Thread.sleep(INIT_WAIT);
 
             int messages = mappings.stream().mapToInt(TopicMapping::getMessages).sum();
@@ -80,9 +77,11 @@ public class ProducerRunnable implements Runnable {
                 DatumWriter<Payload> writer = new SpecificDatumWriter<>(Payload.class);
                 Encoder encoder = EncoderFactory.get().directBinaryEncoder(out, null);
 
+                logger.info("Producing ...");
                 for (int i = 0; i < repeats; i++) {
                     if (isTransactional.get()) {
                         kafkaProducer.beginTransaction();
+                        logger.info("Transaction {} begins ...", i);
                     }
 
                     for (TopicMapping mapping : mappings) {
@@ -102,16 +101,19 @@ public class ProducerRunnable implements Runnable {
 
                     if (isTransactional.get()) {
                         kafkaProducer.commitTransaction();
+                        logger.info("Transaction {} commited ...", i);
                     }
                 }
             } catch (IOException exp) {
                 logger.error(exp.getMessage());
             } finally {
                 kafkaProducer.close();
-                stats.printResults();
+                logger.info("Producer shut down ...");
+                stats.setStopTime();
                 Thread.sleep(FINAL_WAIT);
-                logger.info("Shutting down consumer ...");
-                stopConsumer.set(true);
+                printProducer.await();
+                logger.info("---Producer results---");
+                stats.printResults();
             }
         } catch (InterruptedException exp) {
             logger.error(exp.getMessage());

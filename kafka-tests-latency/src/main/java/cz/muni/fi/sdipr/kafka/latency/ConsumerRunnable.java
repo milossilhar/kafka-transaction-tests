@@ -38,65 +38,67 @@ public class ConsumerRunnable implements Runnable {
     private PropertiesLoader    properties;
     private List<TopicMapping>  mappings;
     private CountDownLatch      startProducer;
-    private AtomicBoolean       stopConsumer;
+    private CountDownLatch      printProducer;
 
-    public ConsumerRunnable(CountDownLatch startProducer, AtomicBoolean stopConsumer, int repeats,
+    public ConsumerRunnable(CountDownLatch startProducer, CountDownLatch printProducer, int repeats,
                             PropertiesLoader properties, List<TopicMapping> mappings) {
         this.startProducer = startProducer;
-        this.stopConsumer = stopConsumer;
+        this.printProducer = printProducer;
         this.repeats = repeats;
         this.mappings = mappings;
 
         properties.addProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getCanonicalName());
         properties.addProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
+        properties.logProperties("consumer");
 
-        logger.info("Creating ConsumerRunnable with properties ...");
-        properties.logProperties();
         this.properties = properties;
     }
 
     @Override
     public void run() {
         int messagesInTransaction = mappings.stream().mapToInt(TopicMapping::getMessages).sum();
+        int totalMessages = repeats * messagesInTransaction;
+        logger.info("Total messages: {} x {} = {}", repeats, messagesInTransaction, totalMessages);
         NetworkStats stats = new NetworkStats(repeats * messagesInTransaction);
 
         DatumReader<Payload> reader = new SpecificDatumReader<>(Payload.class);
         BinaryDecoder decoder = null;
         Payload payload = null;
 
-        logger.info("Creating KafkaConsumer object ...");
         KafkaConsumer<String, byte[]> kafkaConsumer = new KafkaConsumer<>(properties.getProperties());
 
         try {
             List<String> topics = mappings.stream().map(TopicMapping::getTopicName).collect(Collectors.toList());
 
-            logger.info("Subscribing to topics ...");
             kafkaConsumer.subscribe(topics);
-            logger.info("Seeking end ...");
-            kafkaConsumer.seekToEnd(Collections.emptyList());
 
-            logger.info("Polling first messages ...");
+            kafkaConsumer.seekToEnd(Collections.emptyList());
             kafkaConsumer.poll(Duration.ofMillis(100));
 
             logger.info("Starting producer ...");
             startProducer.countDown();
 
+            int countDownMessages = totalMessages;
             stats.setStartTime();
-            while (!stopConsumer.get()) {
+            while (countDownMessages > 0) {
                 ConsumerRecords<String, byte[]> records = kafkaConsumer.poll(Duration.ofMillis(100));
                 for (ConsumerRecord<String, byte[]> record : records) {
                     decoder = DecoderFactory.get().binaryDecoder(record.value(), decoder);
                     payload = reader.read(payload, decoder);
 
                     stats.recordLatency(System.nanoTime() - payload.getProducerTime());
+                    countDownMessages--;
                 }
             }
+            stats.setStopTime();
         } catch (IOException exp) {
             logger.error(exp.getMessage());
         } finally {
             logger.info("Shutting down ...");
             kafkaConsumer.close();
+            logger.info("---Consumer results---");
             stats.printLatencyResults();
+            printProducer.countDown();
         }
     }
 }

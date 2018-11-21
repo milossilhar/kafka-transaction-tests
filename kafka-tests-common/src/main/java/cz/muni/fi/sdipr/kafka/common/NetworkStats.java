@@ -33,7 +33,7 @@ public class NetworkStats {
     private static DecimalFormat kiloBytesPerSecFormat  = new DecimalFormat("#.### kB/s");
     private static DecimalFormat messagesFormat         = new DecimalFormat("#.# msg/s");
 
-    private static final double SAMPLING_PERCENTAGE = 0.1;
+    private static final double SAMPLING_PERCENTAGE = 0.05;
 
     public static final double NANOSECOND_TO_SECOND         = 1.0e9;
     public static final double NANOSECOND_TO_MILLISECOND    = 1.0e6;
@@ -41,6 +41,7 @@ public class NetworkStats {
     public static final double BYTES_TO_KILOBYTES           = 1024.0;
 
     private long        startTime;
+    private long        stopTime;
     private long        messagesSent;
     private long        bytesSent;
     private long        totalMessages;
@@ -53,6 +54,7 @@ public class NetworkStats {
      */
     public NetworkStats(int numberOfRecords) {
         this.startTime     = System.nanoTime();
+        this.stopTime      = 0;
         this.messagesSent  = 0;
         this.bytesSent     = 0;
         this.totalMessages = numberOfRecords;
@@ -61,10 +63,25 @@ public class NetworkStats {
     }
 
     /**
-     * Sets start time tu actual system time
+     * Sets start time to actual system time
      */
     public void setStartTime() {
         this.startTime = System.nanoTime();
+    }
+
+    /**
+     * Sets stop time to actual system time
+     */
+    public void setStopTime() { this.stopTime = System.nanoTime(); }
+
+    /**
+     * Returns elapsed time in nanoseconds
+     */
+    public long getElapsedTime() {
+        if (stopTime == 0) {
+            return System.nanoTime() - startTime;
+        }
+        return stopTime - startTime;
     }
 
     /**
@@ -97,7 +114,7 @@ public class NetworkStats {
      * Prints or rather logs (info level) results to configured output in logback.xml.
      */
     public void printResults() {
-        long elapsedNano = System.nanoTime() - startTime;
+        long elapsedNano = getElapsedTime();
         double elapsedSeconds = elapsedNano / NANOSECOND_TO_SECOND;
 
         // network speed calculations
@@ -130,7 +147,7 @@ public class NetworkStats {
      * Prints or rather logs (info level) only latency results to configured output in logback.xml.
      */
     public void printLatencyResults() {
-        long elapsedNano = System.nanoTime() - startTime;
+        long elapsedNano = getElapsedTime();
         double elapsedSeconds = elapsedNano / NANOSECOND_TO_SECOND;
 
         logger.info("Final results (total time: {})", secondFormat.format(elapsedSeconds));

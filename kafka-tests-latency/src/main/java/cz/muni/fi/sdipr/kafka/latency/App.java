@@ -12,6 +12,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PatternOptionBuilder;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.metrics.stats.Count;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +35,7 @@ public class App {
 
     private static Logger         logger        = LoggerFactory.getLogger(App.class);
     private static CountDownLatch startProducer = new CountDownLatch(1);
-    private static AtomicBoolean  stopConsumer  = new AtomicBoolean(false);
+    private static CountDownLatch printProducer = new CountDownLatch(1);
 
     private static final String DEFAULT_CONSUMER_PROP_FILE = "consumer.properties";
     private static final String DEFAULT_PRODUCER_PROP_FILE = "producer.properties";
@@ -51,13 +54,8 @@ public class App {
             CommandLineParser parser = new DefaultParser();
             CommandLine line = parser.parse(options, args, false);
 
-            if (line.hasOption("consumer-alone") && line.hasOption("producer-alone")) {
-                logger.error("Can run either consumer or producer alone, but not both.");
-                printHelp(options);
-                System.exit(1);
-            }
             if (line.hasOption("topic") == line.hasOption("topic-mapping")) {
-                logger.error("Either topic or topic-mapping must be set.");
+                logger.error("Either topic or topic-mapping must be set, but not both.");
                 printHelp(options);
                 System.exit(1);
             }
@@ -73,24 +71,24 @@ public class App {
                     new Integer(DEFAULT_REPEATS);
             int repeats = repeatsNumber.intValue();
 
-            logger.info("Number of repeats is {} time(s)", repeats);
-
             PropertiesLoader consumerProperties = new PropertiesLoader(consumerPropsFile);
             PropertiesLoader producerProperties = new PropertiesLoader(producerPropsFile);
 
+            if (line.hasOption("servers")) {
+                consumerProperties.addProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, line.getOptionValue("servers"));
+                producerProperties.addProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, line.getOptionValue("servers"));
+            }
+
+            logger.info("Topic mapping in one batch ...");
             List<TopicMapping> mappings = new ArrayList<>();
             if (line.hasOption("topic")) mappings.add(TopicMappings.parseMapping(line.getOptionValues("topic")));
             if (line.hasOption("topic-mapping")) mappings.addAll(TopicMappings.parse(line.getOptionValues("topic-mapping")));
 
-            if (line.hasOption("consumer-alone")) {
-                ConsumerStandalone consumerStandalone =
-                        new ConsumerStandalone(consumerProperties, repeats, mappings.get(0));
-                consumerStandalone.consume();
-            }
-            else if (line.hasOption("producer-alone")) {
-                ProducerStandalone producerStandalone =
-                        new ProducerStandalone(producerProperties, repeats, mappings.get(0));
-                producerStandalone.produce();
+
+            if (line.hasOption("producer-alone")) {
+                ProducerPerformance producerPerformance = new ProducerPerformance(producerProperties, mappings);
+                producerPerformance.produce(repeats);
+                producerPerformance.close();
             }
             else if (line.hasOption("topic")) {
                 ConsumerProducerRunnable consumerProducerRunnable =
@@ -99,8 +97,8 @@ public class App {
                 consumerProducerRunnable.run();
             }
             else if (line.hasOption("topic-mapping")) {
-                ConsumerRunnable consumerRunnable = new ConsumerRunnable(startProducer, stopConsumer, repeats, consumerProperties, mappings);
-                ProducerRunnable producerRunnable = new ProducerRunnable(startProducer, stopConsumer, repeats, producerProperties, mappings);
+                ConsumerRunnable consumerRunnable = new ConsumerRunnable(startProducer, printProducer, repeats, consumerProperties, mappings);
+                ProducerRunnable producerRunnable = new ProducerRunnable(startProducer, printProducer, repeats, producerProperties, mappings);
 
                 Thread consumerThread = new Thread(consumerRunnable, "consumer");
                 Thread producerThread = new Thread(producerRunnable, "producer");
@@ -125,7 +123,7 @@ public class App {
                 .hasArg()
                 .argName("file")
                 .type(PatternOptionBuilder.FILE_VALUE)
-                .desc("Path to producer props file" + System.lineSeparator() + "default: " + DEFAULT_CONSUMER_PROP_FILE)
+                .desc("path to producer props file" + System.lineSeparator() + "default: " + DEFAULT_PRODUCER_PROP_FILE)
                 .build();
 
         Option propsConsumer = Option.builder("c")
@@ -134,21 +132,14 @@ public class App {
                 .hasArg()
                 .argName("file")
                 .type(PatternOptionBuilder.FILE_VALUE)
-                .desc("Path to producer props file" + System.lineSeparator() + "default: " + DEFAULT_PRODUCER_PROP_FILE)
-                .build();
-
-        Option consumerAlone = Option.builder("C")
-                .longOpt("consumer-alone")
-                .required(false)
-                .hasArg(false)
-                .desc("Runs only consumer in standalone mode. Cannot use with -P")
+                .desc("path to consumer props file" + System.lineSeparator() + "default: " + DEFAULT_CONSUMER_PROP_FILE)
                 .build();
 
         Option producerAlone = Option.builder("P")
                 .longOpt("producer-alone")
                 .required(false)
                 .hasArg(false)
-                .desc("Runs only producer in standalone mode. Cannot use with -C")
+                .desc("runs only producer in standalone mode")
                 .build();
 
         Option repeats = Option.builder("n")
@@ -167,7 +158,7 @@ public class App {
                 .numberOfArgs(Option.UNLIMITED_VALUES)
                 .argName("string,int,int")
                 .valueSeparator(',')
-                .desc("Mapping messages to topics. If used with --topic it is ignored." + System.lineSeparator() + "[topic name],[# msgs],[msg size]")
+                .desc("mapping messages to topics" + System.lineSeparator() + "topic-name,#-messages,message-size")
                 .build();
 
         Option topic = Option.builder("t")
@@ -177,14 +168,23 @@ public class App {
                 .numberOfArgs(Option.UNLIMITED_VALUES)
                 .argName("string,{int,}int")
                 .valueSeparator(',')
-                .desc("To which topic send messages using just one thread. If used with --topic-mapping this option takes effect." + System.lineSeparator() + "[topic name],{# msgs,}[msg size]")
+                .desc("to which topic send messages using just one thread" + System.lineSeparator() + "topic-name,[#-messages,]message-size")
+                .build();
+
+        Option servers = Option.builder("s")
+                .longOpt("servers")
+                .required(false)
+                .hasArg(true)
+                .numberOfArgs(1)
+                .argName("hostname1:port1[,hostname2:port2,...]")
+                .desc("overrides hostnames for kafka connection from properties files")
                 .build();
 
         options.addOption(propsProducer);
         options.addOption(propsConsumer);
-        options.addOption(consumerAlone);
         options.addOption(producerAlone);
         options.addOption(repeats);
+        options.addOption(servers);
         options.addOption(topicMapping);
         options.addOption(topic);
 

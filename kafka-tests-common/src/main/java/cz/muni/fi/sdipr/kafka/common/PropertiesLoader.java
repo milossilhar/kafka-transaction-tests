@@ -72,6 +72,14 @@ public class PropertiesLoader {
      *
      */
     public void logProperties() {
+        logProperties("");
+    }
+
+    /**
+     *
+     * @param objectName
+     */
+    public void logProperties(String objectName) {
         String propertiesString = properties.stringPropertyNames().stream().sorted()
                 .map((name) -> {
                     StringBuilder stringBuilder = new StringBuilder();
@@ -82,6 +90,6 @@ public class PropertiesLoader {
                     return stringBuilder.toString();
                 })
                 .collect(Collectors.joining());
-        logger.info("Configured properties ..." + System.lineSeparator() + System.lineSeparator() + propertiesString);
+        logger.info("Configured " + objectName + " properties ..." + System.lineSeparator() + System.lineSeparator() + propertiesString);
     }
 }
