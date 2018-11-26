@@ -164,10 +164,8 @@ function stop_servers {
   
   if [ $IS_SAME_ZOO -eq "0" ]; then
     ZOO_SERVER=${ZOOKEEPER[0]}
-    if [ "$ZOO_LEN" -eq "3" ]; then
-      echo "CMD - ssh ${ZOO_SERVER} \"${LOCATION}/zoo-stop.sh\""
-      ssh ${ZOO_SERVER} "${LOCATION}/zoo-stop.sh"
-    fi
+    echo "CMD - ssh ${ZOO_SERVER} \"${LOCATION}/zoo-stop.sh\""
+    ssh ${ZOO_SERVER} "${LOCATION}/zoo-stop.sh"
   else
     for zoo in ${ZOOKEEPER[@]}; do
       echo "CMD - ssh $zoo \"${LOCATION}/zoo-stop.sh\""
