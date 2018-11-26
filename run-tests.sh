@@ -21,13 +21,6 @@ ZOOKEEPER_PORT=( "nymfe30.fi.muni.cz:2181" )
 ZOO_LEN=${#ZOOKEEPER[@]} # length
 ZOO_STR=$(IFS=,; echo "${ZOOKEEPER[*]}") # comma-separated servers
 ZOO_PORT_STR=$(IFS=,; echo "${ZOOKEEPER_PORT[*]}") # comma-separated servers with ports
-# Kafka servers
-KAFKA=( "nymfe40.fi.muni.cz" "nymfe41.fi.muni.cz" "nymfe42.fi.muni.cz" )
-# Kafka servers with ports
-KAFKA_PORT=( "nymfe40.fi.muni.cz:9092" "nymfe41.fi.muni.cz:9092" "nymfe42.fi.muni.cz:9092" )
-KAFKA_LEN=${#KAFKA[@]} # length
-KAFKA_STR=$(IFS=,; echo "${KAFKA[*]}") # comma-separated servers
-KAFKA_PORT_STR=$(IFS=,; echo "${KAFKA_PORT[*]}") # comma-separated servers with ports
 
 # Location from which this script was executed
 CMD_LOCATION=$(dirname $0)
@@ -183,6 +176,7 @@ function stop_servers {
   fi
 }
 
+# restarts servers kafka and zookeeper on all servers
 function restart_servers {
   stop_servers
   echo "CMD - sleep 10"
@@ -198,36 +192,189 @@ function restart_servers {
   sleep 2
 }
 
-###############################################################
 # EVALUATE CONFIGURED SERVERS
+function eval_servers {
+  if all_different ${ZOOKEEPER[@]}; then
+    IS_SAME_ZOO=1
+  elif all_same ${ZOOKEEPER[@]}; then
+    IS_SAME_ZOO=0
+  else
+    echo "ERROR - Neither same nor different zookeeper servers set in script."
+    exit 2
+  fi
+
+  if all_different ${KAFKA[@]}; then
+    IS_SAME_KAFKA=1
+  elif all_same ${KAFKA[@]}; then
+    IS_SAME_KAFKA=0
+  else
+    echo "ERROR - Neither same nor different kafka servers set in script."
+    exit 2
+  fi
+
+  if ! eval_kafka_len ${KAFKA[@]}; then
+    echo "ERROR - Number of kafka servers is wrong. 1,3,5,9 expected."
+    exit 3
+  fi
+  if ! eval_kafka_len ${KAFKA_PORT[@]}; then
+    echo "ERROR - Number of kafka servers with ports is wrong. 1,3,5,9 expected."
+    exit 3
+  fi
+  if ! eval_zoo_len ${ZOOKEEPER[@]}; then
+    echo "ERROR - Number of zookeeper servers is wrong. 1,3 expected."
+    exit 3
+  fi
+  if ! eval_zoo_len ${ZOOKEEPER_PORT[@]}; then
+    echo "ERROR - Number of zookeeper servers with ports is wrong. 1,3 expected."
+    exit 3
+  fi
+}
+
+# Sets variables for three kafka servers
+function set_three_kafka {
+  # Kafka servers
+  KAFKA=( "nymfe40.fi.muni.cz" "nymfe41.fi.muni.cz" "nymfe42.fi.muni.cz" )
+  # Kafka servers with ports
+  KAFKA_PORT=( "nymfe40.fi.muni.cz:9092" "nymfe41.fi.muni.cz:9092" "nymfe42.fi.muni.cz:9092" )
+  KAFKA_LEN=${#KAFKA[@]} # length
+  KAFKA_STR=$(IFS=,; echo "${KAFKA[*]}") # comma-separated servers
+  KAFKA_PORT_STR=$(IFS=,; echo "${KAFKA_PORT[*]}") # comma-separated servers with ports
+  eval_servers
+}
+
+# Sets variables for five kafka servers
+function set_five_kafka {
+  # Kafka servers
+  KAFKA=( "nymfe40.fi.muni.cz" "nymfe41.fi.muni.cz" "nymfe42.fi.muni.cz" "nymfe43.fi.muni.cz" "nymfe44.fi.muni.cz" )
+  # Kafka servers with ports
+  KAFKA_PORT=( "nymfe40.fi.muni.cz:9092" "nymfe41.fi.muni.cz:9092" "nymfe42.fi.muni.cz:9092" "nymfe43.fi.muni.cz:9092" "nymfe44.fi.muni.cz:9092" )
+  KAFKA_LEN=${#KAFKA[@]} # length
+  KAFKA_STR=$(IFS=,; echo "${KAFKA[*]}") # comma-separated servers
+  KAFKA_PORT_STR=$(IFS=,; echo "${KAFKA_PORT[*]}") # comma-separated servers with ports
+  eval_servers
+}
+
+# Sets variables for nine kafka servers
+function set_nine_kafka {
+  # Kafka servers
+  KAFKA=( "nymfe40.fi.muni.cz" "nymfe41.fi.muni.cz" "nymfe42.fi.muni.cz" "nymfe43.fi.muni.cz" "nymfe44.fi.muni.cz" "nymfe45.fi.muni.cz" "nymfe46.fi.muni.cz" "nymfe47.fi.muni.cz" "nymfe48.fi.muni.cz" )
+  # Kafka servers with ports
+  KAFKA_PORT=( "nymfe40.fi.muni.cz:9092" "nymfe41.fi.muni.cz:9092" "nymfe42.fi.muni.cz:9092" "nymfe43.fi.muni.cz:9092" "nymfe44.fi.muni.cz:9092" "nymfe45.fi.muni.cz:9092" "nymfe46.fi.muni.cz:9092" "nymfe47.fi.muni.cz:9092" "nymfe48.fi.muni.cz:9092" )
+  KAFKA_LEN=${#KAFKA[@]} # length
+  KAFKA_STR=$(IFS=,; echo "${KAFKA[*]}") # comma-separated servers
+  KAFKA_PORT_STR=$(IFS=,; echo "${KAFKA_PORT[*]}") # comma-separated servers with ports
+  eval_servers
+}
+
+# Prints kafka variables 
+function print_kafka_servers {
+  echo "INFO - var: KAFKA = ${KAFKA}"
+  echo "INFO - var: KAFKA_PORT = ${KAFKA_PORT}"
+  echo "INFO - var: KAFKA_LEN = ${KAFKA_LEN}"
+  echo "INFO - var: KAFKA_STR = ${KAFKA_STR}"
+  echo "INFO - var: KAFKA_PORT_STR = ${KAFKA_PORT_STR}"
+}
+
+###############################################################
+# TEST PREPARATION
 ###############################################################
 
-if all_different ${ZOOKEEPER[@]}; then
-  IS_SAME_ZOO=1
-elif all_same ${ZOOKEEPER[@]}; then
-  IS_SAME_ZOO=0
-else
-  echo "ERROR - Neither same nor different zookeeper servers set in script."
-  exit 2
-fi
+# FUNCTIONS FOR TESTS
 
-if all_different ${KAFKA[@]}; then
-  IS_SAME_KAFKA=1
-elif all_same ${KAFKA[@]}; then
-  IS_SAME_KAFKA=0
-else
-  echo "ERROR - Neither same nor different kafka servers set in script."
-  exit 2
-fi
+# Transactional tests
+function transactional_tests {
+  # restarts servers
+  restart_servers
+  
+  # 24 000 messages, transactional 1 gps
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 24000 -m ${gps_name},1,${gps_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-1-0-0_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 24000 -m ${gps_name},1,${gps_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-1-0-0_${now}.out
+  restart_servers
+  
+  # 24 000 messages, transactional 2 gps, 1 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 8000 -m ${gps_name},2,${gps_size} ${store_name},1,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-2-0-1_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 8000 -m ${gps_name},2,${gps_size} ${store_name},1,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-2-0-1_${now}.out
+  restart_servers
 
-if ! eval_kafka_len ${KAFKA[@]}; then
-  echo "ERROR - Number of kafka servers is wrong. 1,3,5,9 expected."
-  exit 3
-fi
-if ! eval_zoo_len ${ZOOKEEPER[@]}; then
-  echo "ERROR - Number of zookeeper servers is wrong. 1,3 expected."
-  exit 3
-fi
+  # 24 000 messages, transactional 5 gps, 1 im, 2 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 3000 -m ${gps_name},5,${gps_size} ${im_name},1,${im_size} ${store_name},2,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-5-1-2_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 3000 -m ${gps_name},5,${gps_size} ${im_name},1,${im_size} ${store_name},2,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-5-1-2_${now}.out
+  restart_servers
+
+  # 24 000 messages, transactional 10 gps, 2 im, 4 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1500 -m ${gps_name},10,${gps_size} ${im_name},2,${im_size} ${store_name},4,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-10-2-4_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1500 -m ${gps_name},10,${gps_size} ${im_name},2,${im_size} ${store_name},4,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-10-2-4_${now}.out
+  restart_servers
+
+  # 24 000 messages, transactional 50 gps, 10 im, 20 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-50-10-20_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-50-10-20_${now}.out
+  restart_servers
+
+  # ACK=ALL tests
+
+  # 24 000 messages, ack=all 1 gps
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 24000 -m ${gps_name},1,${gps_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-1-0-0_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 24000 -m ${gps_name},1,${gps_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-1-0-0_${now}.out
+  restart_servers
+  
+  # 24 000 messages, ack=all 2 gps, 1 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 8000 -m ${gps_name},2,${gps_size} ${store_name},1,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-2-0-1_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 8000 -m ${gps_name},2,${gps_size} ${store_name},1,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-2-0-1_${now}.out
+  restart_servers
+  
+  # 24 000 messages, ack=all 5 gps, 1 im, 2 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 3000 -m ${gps_name},5,${gps_size} ${im_name},1,${im_size} ${store_name},2,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-5-1-2_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 3000 -m ${gps_name},5,${gps_size} ${im_name},1,${im_size} ${store_name},2,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-5-1-2_${now}.out
+  restart_servers
+  
+  # 24 000 messages, ack=all 10 gps, 2 im, 4 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 1500 -m ${gps_name},10,${gps_size} ${im_name},2,${im_size} ${store_name},4,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-10-2-4_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 1500 -m ${gps_name},10,${gps_size} ${im_name},2,${im_size} ${store_name},4,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-10-2-4_${now}.out
+  restart_servers
+  
+  # 24 000 messages, ack=all 50 gps, 10 im, 20 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-50-10-20_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-50-10-20_${now}.out
+  restart_servers
+
+  # ACK=ONE tests
+
+  # 24 000 messages, ack=1 1 gps
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 24000 -m ${gps_name},1,${gps_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-1-0-0_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 24000 -m ${gps_name},1,${gps_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-1-0-0_${now}.out
+  restart_servers
+  
+  # 24 000 messages, ack=1 2 gps, 1 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 8000 -m ${gps_name},2,${gps_size} ${store_name},1,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-2-0-1_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 8000 -m ${gps_name},2,${gps_size} ${store_name},1,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-2-0-1_${now}.out
+  restart_servers
+  
+  # 24 000 messages, ack=1 5 gps, 1 im, 2 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 3000 -m ${gps_name},5,${gps_size} ${im_name},1,${im_size} ${store_name},2,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-5-1-2_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 3000 -m ${gps_name},5,${gps_size} ${im_name},1,${im_size} ${store_name},2,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-5-1-2_${now}.out
+  restart_servers
+  
+  # 24 000 messages, ack=1 10 gps, 2 im, 4 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1500 -m ${gps_name},10,${gps_size} ${im_name},2,${im_size} ${store_name},4,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-10-2-4_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1500 -m ${gps_name},10,${gps_size} ${im_name},2,${im_size} ${store_name},4,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-10-2-4_${now}.out
+  restart_servers
+  
+  # 24 000 messages, ack=1 50 gps, 10 im, 20 store
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-50-10-20_${now}.out"
+  #mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-50-10-20_${now}.out
+  stop_servers
+}
+
+# SIZE BASED tests
+function size_tests {
+  exit 0
+}
+
+# Latency tests
+function latency_tests {
+  exit 0
+}
 
 ###############################################################
 # TEST EXECUTION
@@ -236,66 +383,29 @@ fi
 # compile whole project
 echo "CMD - mvn -q clean install"
 mvn -q clean install
+
 # change to latency sub-project
 echo "CMD - cd kafka-tests-latency"
 cd kafka-tests-latency
-restart_servers
 
-# Transactional tests
+# Sets execution for 3 kafka servers
+set_three_kafka
+# Prints actual configuration
+print_kafka_servers
+# Runs transactional tests
+transactional_tests
 
-## 24 000 messages, transaction 1 gps
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 24000 -m ${gps_name},1,${gps_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-1-0-0_${now}.out"
-#restart_servers
-## 24 000 messages, transaction 2 gps, 1 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 8000 -m ${gps_name},2,${gps_size} ${store_name},1,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-2-0-1_${now}.out"
-#restart_servers
-## 24 000 messages, transaction 5 gps, 1 im, 2 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 3000 -m ${gps_name},5,${gps_size} ${im_name},1,${im_size} ${store_name},2,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-5-1-2_${now}.out"
-#restart_servers
-## 24 000 messages, transaction 10 gps, 2 im, 4 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1500 -m ${gps_name},10,${gps_size} ${im_name},2,${im_size} ${store_name},4,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-10-2-4_${now}.out"
-#restart_servers
-# 24 000 messages, transaction 50 gps, 10 im, 20 store
-echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-50-10-20_${now}.out"
-mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}" | tee ${HOME}/${KAFKA_LEN}server-producer-trans-result-50-10-20_${now}.out
-#restart_servers
-#
-## ACK=ALL tests
-#
-## 24 000 messages, ack=all 1 gps
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 24000 -m ${gps_name},1,${gps_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-1-0-0_${now}.out"
-#restart_servers
-## 24 000 messages, ack=all 2 gps, 1 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 8000 -m ${gps_name},2,${gps_size} ${store_name},1,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-2-0-1_${now}.out"
-#restart_servers
-## 24 000 messages, ack=all 5 gps, 1 im, 2 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 3000 -m ${gps_name},5,${gps_size} ${im_name},1,${im_size} ${store_name},2,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-5-1-2_${now}.out"
-#restart_servers
-## 24 000 messages, ack=all 10 gps, 2 im, 4 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 1500 -m ${gps_name},10,${gps_size} ${im_name},2,${im_size} ${store_name},4,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-10-2-4_${now}.out"
-#restart_servers
-## 24 000 messages, ack=all 50 gps, 10 im, 20 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_all_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-all-result-50-10-20_${now}.out"
-#restart_servers
-#
-## ACK=ONE tests
-#
-## 24 000 messages, ack=all 1 gps
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 24000 -m ${gps_name},1,${gps_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-1-0-0_${now}.out"
-#restart_servers
-## 24 000 messages, ack=all 2 gps, 1 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 8000 -m ${gps_name},2,${gps_size} ${store_name},1,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-2-0-1_${now}.out"
-#restart_servers
-## 24 000 messages, ack=all 5 gps, 1 im, 2 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 3000 -m ${gps_name},5,${gps_size} ${im_name},1,${im_size} ${store_name},2,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-5-1-2_${now}.out"
-#restart_servers
-## 24 000 messages, ack=all 10 gps, 2 im, 4 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1500 -m ${gps_name},10,${gps_size} ${im_name},2,${im_size} ${store_name},4,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-10-2-4_${now}.out"
-#restart_servers
-## 24 000 messages, ack=all 50 gps, 10 im, 20 store
-#echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 300 -m ${gps_name},50,${gps_size} ${im_name},10,${im_size} ${store_name},20,${store_size}\" | tee ${HOME}/${KAFKA_LEN}server-producer-one-result-50-10-20_${now}.out"
-stop_servers
+# Sets execution for 3 kafka servers
+set_five_kafka
+# Prints actual configuration
+print_kafka_servers
+# Runs transactional tests
+transactional_tests
 
-# SIZE BASED tests
-
+# Sets execution for 3 kafka servers
+set_nine_kafka
+# Prints actual configuration
+print_kafka_servers
+# Runs transactional tests
+transactional_tests
 
