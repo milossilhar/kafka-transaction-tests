@@ -55,15 +55,19 @@ if [ $SINGLE -eq "0" ]; then
   for (( i=0; i<${NUM_SERVERS}; i++ )); do
     CONFIGS_FILE=$(printf %s-%02d-%02d.properties $CONFIG_BASE $NUM_SERVERS $i)
     if [ "x$ZOO_SERVERS" != "x" ]; then
-      echo "${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE} --override zookeeper.connect=$ZOO_SERVERS && echo \"Kafka server $i started\""
+      echo "CMD - ${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE} --override zookeeper.connect=$ZOO_SERVERS && echo \"Kafka server $i started\""
+      ${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE} --override zookeeper.connect=$ZOO_SERVERS && echo "Kafka server $i started"
     else
-      echo "${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE} && echo \"Kafka server $i started\""
+      echo "CMD - ${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE} && echo \"Kafka server $i started\""
+      ${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE} && echo "Kafka server $i started"
     fi
   done
 else
   if [ "x$ZOO_SERVERS" != "x" ]; then
-    echo "${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE}  --override zookeeper.connect=$ZOO_SERVERS && echo \"Kafka server $INSTANCE/$NUM_SERVERS started\""
+    echo "CMD - ${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE}  --override zookeeper.connect=$ZOO_SERVERS && echo \"Kafka server $INSTANCE/$NUM_SERVERS started\""
+    ${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE}  --override zookeeper.connect=$ZOO_SERVERS && echo "Kafka server $INSTANCE/$NUM_SERVERS started"
   else
-    echo "${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE} && echo \"Kafka server $INSTANCE/$NUM_SERVERS started\""
+    echo "CMD - ${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE} && echo \"Kafka server $INSTANCE/$NUM_SERVERS started\""
+    ${BINARY_LOCATION}/kafka-server-start.sh -daemon ${CONFIGS_LOCATION}/${CONFIGS_FILE} && echo "Kafka server $INSTANCE/$NUM_SERVERS started"
   fi
 fi

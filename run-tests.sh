@@ -143,7 +143,7 @@ function start_servers {
     echo "CMD - ssh ${KAFKA_SERVER} \"${LOCATION}/kafka-start.sh --single $KAFKA_LEN ${ZOO_PORT_STR}\""
     ssh ${KAFKA_SERVER} "${LOCATION}/kafka-start.sh --single $KAFKA_LEN ${ZOO_PORT_STR}"
   else
-    i=1
+    i=0
     for kaf in ${KAFKA[@]}; do
       echo "CMD - ssh $kaf \"${LOCATION}/kafka-start.sh $KAFKA_LEN $i ${ZOO_PORT_STR}\""
       ssh $kaf "${LOCATION}/kafka-start.sh $KAFKA_LEN $i ${ZOO_PORT_STR}"
@@ -167,6 +167,7 @@ function stop_servers {
   # waits for kafka to stop
   echo "INFO - Waiting for kafka to stop ..."
   echo "CMD - sleep 5"
+  sleep 5
   
   if [ $IS_SAME_ZOO -eq "0" ]; then
     ZOO_SERVER=${ZOOKEEPER[0]}
