@@ -15,9 +15,9 @@ fi
 ###############################################################
 
 # Zookeeper servers
-ZOOKEEPER=( "nymfe30.fi.muni.cz" "nymfe31.fi.muni.cz" "nymfe32.fi.muni.cz" )
+ZOOKEEPER=( "nymfe30.fi.muni.cz" )
 # Zookeeper servers with ports
-ZOOKEEPER_PORT=( "nymfe30.fi.muni.cz:2181" "nymfe31.fi.muni.cz:2181" "nymfe32.fi.muni.cz:2181" )
+ZOOKEEPER_PORT=( "nymfe30.fi.muni.cz:2181" )
 ZOO_LEN=${#ZOOKEEPER[@]} # length
 ZOO_STR=$(IFS=,; echo "${ZOOKEEPER[*]}") # comma-separated servers
 ZOO_PORT_STR=$(IFS=,; echo "${ZOOKEEPER_PORT[*]}") # comma-separated servers with ports
