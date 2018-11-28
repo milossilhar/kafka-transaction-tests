@@ -128,7 +128,7 @@ public class NetworkStats {
                 messagesFormat.format(messagesPerSec),
                 getBytesPerSecond(elapsedSeconds));
         printLatencies();
-        printPercentiles(0.5, 0.95, 0.99);
+        printPercentiles(0.25, 0.5, 0.75, 0.95, 0.99);
     }
 
     /**
@@ -153,7 +153,7 @@ public class NetworkStats {
         logger.info("Final results (total time: {})", secondFormat.format(elapsedSeconds));
         logger.info("Size: {} message(s) received", messagesSent);
         printLatencies();
-        printPercentiles(0.5, 0.95, 0.99);
+        printPercentiles(0.25, 0.5, 0.75, 0.95, 0.99);
     }
 
     /**

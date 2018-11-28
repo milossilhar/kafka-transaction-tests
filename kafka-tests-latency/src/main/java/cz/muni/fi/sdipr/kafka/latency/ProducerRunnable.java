@@ -81,7 +81,6 @@ public class ProducerRunnable implements Runnable {
                 for (int i = 0; i < repeats; i++) {
                     if (isTransactional.get()) {
                         kafkaProducer.beginTransaction();
-                        logger.info("Transaction {} begins ...", i);
                     }
 
                     for (TopicMapping mapping : mappings) {
@@ -101,7 +100,6 @@ public class ProducerRunnable implements Runnable {
 
                     if (isTransactional.get()) {
                         kafkaProducer.commitTransaction();
-                        logger.info("Transaction {} commited ...", i);
                     }
                 }
             } catch (IOException exp) {

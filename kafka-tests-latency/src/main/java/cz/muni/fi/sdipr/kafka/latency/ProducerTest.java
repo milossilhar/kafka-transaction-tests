@@ -59,6 +59,7 @@ public class ProducerTest {
         int messagesInTransaction = mappings.stream()
                 .mapToInt((m) -> m.getMessages())
                 .sum();
+        logger.info("Total messages: {} x {} = {}", times, messagesInTransaction, times * messagesInTransaction);
         stats = new NetworkStats(times * messagesInTransaction);
 
         for (int i = 0; i < times; i++) {
