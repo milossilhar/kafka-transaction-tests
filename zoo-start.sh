@@ -7,7 +7,7 @@ function printUsage {
   echo "USAGE: $0 alone|single|multi [id]"
   echo "alone          runs standalone instance of zookeeper as daemon"
   echo "single         runs replicated zookeeper on single server as daemons"
-  echo "mutli [id:1-3] runs one of three instances of replicated zookeeper as daemon"
+  echo "mutli id:1-3   runs one of three instances of replicated zookeeper as daemon"
   exit 1
 }
 
@@ -57,6 +57,5 @@ case $1 in
   ;;
 *)
   printUsage
-  exit
   ;;
 esac

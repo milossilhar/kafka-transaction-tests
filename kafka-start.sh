@@ -8,7 +8,7 @@ function printUsage {
   echo "-s                  run on single machine, ignores instance_to_run and runs all instances"
   echo "number_of_servers   number of servers to start"
   echo "instance_to_run     particular instance of server to start (zero-based)"
-  echo ""
+  echo "[zookeeper_servers] overrides zookeeper servers in kafka starting configuration file"
   exit 1
 }
 
