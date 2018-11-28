@@ -44,3 +44,4 @@ BINARY_LOCATION="${HOME}/kafka/bin"
 ${BINARY_LOCATION}/kafka-topics.sh --create --zookeeper ${1} --topic gps --partitions ${partitions} --replication-factor ${factor}
 ${BINARY_LOCATION}/kafka-topics.sh --create --zookeeper ${1} --topic im --partitions ${partitions} --replication-factor ${factor}
 ${BINARY_LOCATION}/kafka-topics.sh --create --zookeeper ${1} --topic store --partitions ${partitions} --replication-factor ${factor}
+${BINARY_LOCATION}/kafka-topics.sh --create --zookeeper ${1} --topic latency --partitions ${partitions} --replication-factor ${factor}
