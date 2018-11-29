@@ -235,6 +235,17 @@ function eval_servers {
   fi
 }
 
+function set_one_kafka {
+  # Kafka servers
+  KAFKA=( "nymfe40.fi.muni.cz" )
+  # Kafka servers with ports
+  KAFKA_PORT=( "nymfe40.fi.muni.cz:9092" )
+  KAFKA_LEN=${#KAFKA[@]} # length
+  KAFKA_STR=$(IFS=,; echo "${KAFKA[*]}") # comma-separated servers
+  KAFKA_PORT_STR=$(IFS=,; echo "${KAFKA_PORT[*]}") # comma-separated servers with ports
+  eval_servers
+}
+
 # Sets variables for three kafka servers
 function set_three_kafka {
   # Kafka servers
@@ -505,6 +516,17 @@ mvn -q clean install
 # change to latency sub-project
 echo "CMD - cd kafka-tests-latency"
 cd kafka-tests-latency
+
+# Sets execution for 1 kafka servers
+#set_one_kafka
+# Prints actual configuration
+#print_kafka_servers
+# Runs transactional tests
+#transactional_tests
+# Runs size based tests
+#size_tests
+# Runs latency tests
+#latency_tests
 
 # Sets execution for 3 kafka servers
 set_three_kafka
