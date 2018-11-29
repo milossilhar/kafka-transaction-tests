@@ -19,4 +19,4 @@ BINARY_LOCATION="${HOME}/kafka/bin"
 ${BINARY_LOCATION}/zookeeper-server-stop.sh && echo "INFO - Zookeeper instance(s) stopped"
 sleep 3
 echo "INFO - Removing zookeeper folders"
-rm -rf /tmp/xsilhar-zookeeper//
+rm -rf /tmp/xsilhar-zookeeper/

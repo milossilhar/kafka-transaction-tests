@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -31,7 +32,7 @@ public class App {
 
     private static Logger         logger        = LoggerFactory.getLogger(App.class);
     private static CountDownLatch startProducer = new CountDownLatch(1);
-    private static CountDownLatch printProducer = new CountDownLatch(1);
+    private static AtomicBoolean  stopConsumer  = new AtomicBoolean(false);
 
     private static final String DEFAULT_CONSUMER_PROP_FILE = "consumer.properties";
     private static final String DEFAULT_PRODUCER_PROP_FILE = "producer.properties";
@@ -93,8 +94,8 @@ public class App {
                 consumerProducerRunnable.run();
             }
             else if (line.hasOption("topic-mapping")) {
-                ConsumerRunnable consumerRunnable = new ConsumerRunnable(startProducer, printProducer, repeats, consumerProperties, mappings);
-                ProducerRunnable producerRunnable = new ProducerRunnable(startProducer, printProducer, repeats, producerProperties, mappings);
+                ConsumerRunnable consumerRunnable = new ConsumerRunnable(startProducer, stopConsumer, repeats, consumerProperties, mappings);
+                ProducerRunnable producerRunnable = new ProducerRunnable(startProducer, stopConsumer, repeats, producerProperties, mappings);
 
                 Thread consumerThread = new Thread(consumerRunnable, "consumer");
                 Thread producerThread = new Thread(producerRunnable, "producer");

@@ -40,12 +40,12 @@ public class ProducerRunnable implements Runnable {
     private List<TopicMapping>  mappings;
     private AtomicBoolean       isTransactional;
     private CountDownLatch      startProducer;
-    private CountDownLatch      printProducer;
+    private AtomicBoolean       stopConsumer;
 
-    public ProducerRunnable(CountDownLatch startProducer, CountDownLatch printProducer, int repeats,
+    public ProducerRunnable(CountDownLatch startProducer, AtomicBoolean stopConsumer, int repeats,
                             PropertiesLoader properties, List<TopicMapping> mappings) {
         this.startProducer = startProducer;
-        this.printProducer = printProducer;
+        this.stopConsumer  = stopConsumer;
         this.repeats = repeats;
         this.mappings = mappings;
         this.isTransactional = new AtomicBoolean(properties.hasProperty(ProducerConfig.TRANSACTIONAL_ID_CONFIG));
@@ -106,8 +106,9 @@ public class ProducerRunnable implements Runnable {
                 kafkaProducer.close();
                 logger.info("Producer shut down ...");
                 //stats.setStopTime();
-                //Thread.sleep(FINAL_WAIT);
-                //printProducer.await();
+                Thread.sleep(FINAL_WAIT);
+                logger.info("Shutting down consumer ...");
+                stopConsumer.set(true);
                 //logger.info("---Producer results---");
                 //stats.printResults();
             }

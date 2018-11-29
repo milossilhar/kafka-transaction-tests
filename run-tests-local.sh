@@ -15,15 +15,15 @@ fi
 ###############################################################
 
 # Zookeeper servers
-ZOOKEEPER=( "nymfe30.fi.muni.cz" "nymfe31.fi.muni.cz" "nymfe32.fi.muni.cz" )
+ZOOKEEPER=( "localhost" )
 # Zookeeper servers with ports
-ZOOKEEPER_PORT=( "nymfe30.fi.muni.cz:2181" "nymfe31.fi.muni.cz:2181" "nymfe32.fi.muni.cz:2181" )
+ZOOKEEPER_PORT=( "localhost:2181" )
 ZOO_LEN=${#ZOOKEEPER[@]} # length
 ZOO_STR=$(IFS=,; echo "${ZOOKEEPER[*]}") # comma-separated servers
 ZOO_PORT_STR=$(IFS=,; echo "${ZOOKEEPER_PORT[*]}") # comma-separated servers with ports
 
 # Location of scripts on all servers
-LOCATION="${HOME}/dp/kafka-transaction-tests"
+LOCATION="${HOME}/Dropbox/diplomka/perf-tests/kafka-transaction-tests"
 
 # actual date
 now=$(date +"%Y-%m-%d")
@@ -235,9 +235,9 @@ function eval_servers {
 
 function set_one_kafka {
   # Kafka servers
-  KAFKA=( "nymfe40.fi.muni.cz" )
+  KAFKA=( "localhost" )
   # Kafka servers with ports
-  KAFKA_PORT=( "nymfe40.fi.muni.cz:9092" )
+  KAFKA_PORT=( "localhost:9092" )
   KAFKA_LEN=${#KAFKA[@]} # length
   KAFKA_STR=$(IFS=,; echo "${KAFKA[*]}") # comma-separated servers
   KAFKA_PORT_STR=$(IFS=,; echo "${KAFKA_PORT[*]}") # comma-separated servers with ports
@@ -247,9 +247,9 @@ function set_one_kafka {
 # Sets variables for three kafka servers
 function set_three_kafka {
   # Kafka servers
-  KAFKA=( "nymfe40.fi.muni.cz" "nymfe41.fi.muni.cz" "nymfe42.fi.muni.cz" )
+  KAFKA=( "localhost" "localhost" "localhost" )
   # Kafka servers with ports
-  KAFKA_PORT=( "nymfe40.fi.muni.cz:9092" "nymfe41.fi.muni.cz:9092" "nymfe42.fi.muni.cz:9092" )
+  KAFKA_PORT=( "localhost:9092" "localhost:9093" "localhost:9094" )
   KAFKA_LEN=${#KAFKA[@]} # length
   KAFKA_STR=$(IFS=,; echo "${KAFKA[*]}") # comma-separated servers
   KAFKA_PORT_STR=$(IFS=,; echo "${KAFKA_PORT[*]}") # comma-separated servers with ports
@@ -259,9 +259,9 @@ function set_three_kafka {
 # Sets variables for five kafka servers
 function set_five_kafka {
   # Kafka servers
-  KAFKA=( "nymfe40.fi.muni.cz" "nymfe41.fi.muni.cz" "nymfe42.fi.muni.cz" "nymfe43.fi.muni.cz" "nymfe44.fi.muni.cz" )
+  KAFKA=( "localhost" "localhost" "localhost" "localhost" "localhost" )
   # Kafka servers with ports
-  KAFKA_PORT=( "nymfe40.fi.muni.cz:9092" "nymfe41.fi.muni.cz:9092" "nymfe42.fi.muni.cz:9092" "nymfe43.fi.muni.cz:9092" "nymfe44.fi.muni.cz:9092" )
+  KAFKA_PORT=( "localhost:9092" "localhost:9093" "localhost:9094" "localhost:9095" "localhost:9096" )
   KAFKA_LEN=${#KAFKA[@]} # length
   KAFKA_STR=$(IFS=,; echo "${KAFKA[*]}") # comma-separated servers
   KAFKA_PORT_STR=$(IFS=,; echo "${KAFKA_PORT[*]}") # comma-separated servers with ports
@@ -271,9 +271,9 @@ function set_five_kafka {
 # Sets variables for nine kafka servers
 function set_nine_kafka {
   # Kafka servers
-  KAFKA=( "nymfe40.fi.muni.cz" "nymfe41.fi.muni.cz" "nymfe42.fi.muni.cz" "nymfe43.fi.muni.cz" "nymfe44.fi.muni.cz" "nymfe45.fi.muni.cz" "nymfe46.fi.muni.cz" "nymfe47.fi.muni.cz" "nymfe48.fi.muni.cz" )
+  KAFKA=( "localhost" "localhost" "localhost" "localhost" "localhost" "localhost" "localhost" "localhost" "localhost" )
   # Kafka servers with ports
-  KAFKA_PORT=( "nymfe40.fi.muni.cz:9092" "nymfe41.fi.muni.cz:9092" "nymfe42.fi.muni.cz:9092" "nymfe43.fi.muni.cz:9092" "nymfe44.fi.muni.cz:9092" "nymfe45.fi.muni.cz:9092" "nymfe46.fi.muni.cz:9092" "nymfe47.fi.muni.cz:9092" "nymfe48.fi.muni.cz:9092" )
+  KAFKA_PORT=( "localhost:9092" "localhost:9093" "localhost:9094" "localhost:9095" "localhost:9096" "localhost:9097" "localhost:9098" "localhost:9099" "localhost:9100" )
   KAFKA_LEN=${#KAFKA[@]} # length
   KAFKA_STR=$(IFS=,; echo "${KAFKA[*]}") # comma-separated servers
   KAFKA_PORT_STR=$(IFS=,; echo "${KAFKA_PORT[*]}") # comma-separated servers with ports
@@ -516,15 +516,15 @@ echo "CMD - cd kafka-tests-latency"
 cd kafka-tests-latency
 
 # Sets execution for 1 kafka servers
-#set_one_kafka
+set_one_kafka
 # Prints actual configuration
-#print_kafka_servers
+print_kafka_servers
 # Runs transactional tests
-#transactional_tests
+transactional_tests
 # Runs size based tests
-#size_tests
+size_tests
 # Runs latency tests
-#latency_tests
+latency_tests
 
 # Sets execution for 3 kafka servers
 set_three_kafka
@@ -537,25 +537,25 @@ size_tests
 # Runs latency tests
 latency_tests
 
-## Sets execution for 5 kafka servers
-#set_five_kafka
-## Prints actual configuration
-#print_kafka_servers
-## Runs transactional tests
-#transactional_tests
-## Runs size based tests
-#size_tests
-## Runs latency tests
-#latency_tests
-#
-## Sets execution for 9 kafka servers
-#set_nine_kafka
-## Prints actual configuration
-#print_kafka_servers
-## Runs transactional tests
-#transactional_tests
-## Runs size based tests
-#size_tests
-## Runs latency tests
-#latency_tests
+# Sets execution for 5 kafka servers
+set_five_kafka
+# Prints actual configuration
+print_kafka_servers
+# Runs transactional tests
+transactional_tests
+# Runs size based tests
+size_tests
+# Runs latency tests
+latency_tests
+
+# Sets execution for 9 kafka servers
+set_nine_kafka
+# Prints actual configuration
+print_kafka_servers
+# Runs transactional tests
+transactional_tests
+# Runs size based tests
+size_tests
+# Runs latency tests
+latency_tests
 

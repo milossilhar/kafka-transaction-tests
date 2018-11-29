@@ -38,12 +38,12 @@ public class ConsumerRunnable implements Runnable {
     private PropertiesLoader    properties;
     private List<TopicMapping>  mappings;
     private CountDownLatch      startProducer;
-    private CountDownLatch      printProducer;
+    private AtomicBoolean       stopConsumer;
 
-    public ConsumerRunnable(CountDownLatch startProducer, CountDownLatch printProducer, int repeats,
+    public ConsumerRunnable(CountDownLatch startProducer, AtomicBoolean stopConsumer, int repeats,
                             PropertiesLoader properties, List<TopicMapping> mappings) {
         this.startProducer = startProducer;
-        this.printProducer = printProducer;
+        this.stopConsumer  = stopConsumer;
         this.repeats = repeats;
         this.mappings = mappings;
 
@@ -80,7 +80,7 @@ public class ConsumerRunnable implements Runnable {
 
             int countDownMessages = totalMessages;
             stats.setStartTime();
-            while (countDownMessages > 0) {
+            while (countDownMessages > 0 && !stopConsumer.get()) {
                 ConsumerRecords<String, byte[]> records = kafkaConsumer.poll(Duration.ofMillis(100));
                 for (ConsumerRecord<String, byte[]> record : records) {
                     decoder = DecoderFactory.get().binaryDecoder(record.value(), decoder);
@@ -94,11 +94,10 @@ public class ConsumerRunnable implements Runnable {
         } catch (IOException exp) {
             logger.error(exp.getMessage());
         } finally {
-            logger.info("Shutting down ...");
             kafkaConsumer.close();
+            logger.info("Consumer shut down ...");
             logger.info("---Consumer results---");
             stats.printLatencyResults();
-            printProducer.countDown();
         }
     }
 }

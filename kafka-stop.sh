@@ -19,4 +19,4 @@ BINARY_LOCATION="${HOME}/kafka/bin"
 ${BINARY_LOCATION}/kafka-server-stop.sh && echo "INFO - Kafka server(s) stopped"
 sleep 3
 echo "INFO - Removing kafka folders"
-rm -rf /tmp/xsilhar-kafka-*-logs//
+rm -rf /tmp/xsilhar-kafka-*-logs/
