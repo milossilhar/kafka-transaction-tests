@@ -86,7 +86,7 @@ public class ConsumerRunnable implements Runnable {
                     decoder = DecoderFactory.get().binaryDecoder(record.value(), decoder);
                     payload = reader.read(payload, decoder);
 
-                    stats.recordLatency(System.nanoTime() - payload.getProducerTime());
+                    stats.recordLatency(System.currentTimeMillis() - payload.getProducerTime());
                     countDownMessages--;
                 }
             }

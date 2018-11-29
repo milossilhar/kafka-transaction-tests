@@ -27,12 +27,12 @@ public class ProducerCallback implements Callback {
         this.networkStats = stats;
         this.bytesSent = bytesSent;
 
-        this.startTime = System.nanoTime();
+        this.startTime = System.currentTimeMillis();
     }
 
     @Override
     public void onCompletion(RecordMetadata recordMetadata, Exception exception) {
-        long latency = System.nanoTime() - startTime;
+        long latency = System.currentTimeMillis() - startTime;
         //logger.trace("Recorded message of size {}B with latency {}ns", bytesSent, latency);
         networkStats.recordMessage(latency, bytesSent);
         if (exception != null) {

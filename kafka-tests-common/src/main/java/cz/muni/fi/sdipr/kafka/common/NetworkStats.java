@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -35,8 +36,7 @@ public class NetworkStats {
 
     private static final double SAMPLING_PERCENTAGE = 0.05;
 
-    public static final double NANOSECOND_TO_SECOND         = 1.0e9;
-    public static final double NANOSECOND_TO_MILLISECOND    = 1.0e6;
+    public static final double MILLISECOND_TO_SECOND         = 1.0e3;
     public static final double BYTES_TO_MEGABYTES           = 1024.0 * 1024.0;
     public static final double BYTES_TO_KILOBYTES           = 1024.0;
 
@@ -53,7 +53,7 @@ public class NetworkStats {
      * @param numberOfRecords
      */
     public NetworkStats(int numberOfRecords) {
-        this.startTime     = System.nanoTime();
+        this.startTime     = System.currentTimeMillis();
         this.stopTime      = 0;
         this.messagesSent  = 0;
         this.bytesSent     = 0;
@@ -66,20 +66,20 @@ public class NetworkStats {
      * Sets start time to actual system time
      */
     public void setStartTime() {
-        this.startTime = System.nanoTime();
+        this.startTime = System.currentTimeMillis();
     }
 
     /**
      * Sets stop time to actual system time
      */
-    public void setStopTime() { this.stopTime = System.nanoTime(); }
+    public void setStopTime() { this.stopTime = System.currentTimeMillis(); }
 
     /**
      * Returns elapsed time in nanoseconds
      */
     public long getElapsedTime() {
         if (stopTime == 0) {
-            return System.nanoTime() - startTime;
+            return System.currentTimeMillis() - startTime;
         }
         return stopTime - startTime;
     }
@@ -114,8 +114,8 @@ public class NetworkStats {
      * Prints or rather logs (info level) results to configured output in logback.xml.
      */
     public void printResults() {
-        long elapsedNano = getElapsedTime();
-        double elapsedSeconds = elapsedNano / NANOSECOND_TO_SECOND;
+        long elapsedMilli = getElapsedTime();
+        double elapsedSeconds = elapsedMilli / MILLISECOND_TO_SECOND;
 
         // network speed calculations
         double messagesPerSec  = messagesSent / elapsedSeconds;
@@ -129,14 +129,15 @@ public class NetworkStats {
                 getBytesPerSecond(elapsedSeconds));
         printLatencies();
         printPercentiles(0.25, 0.5, 0.75, 0.95, 0.99);
+        printRawLatencies();
     }
 
     /**
      * Prints or rather logs (info level) partial results when every 10% messages are sent.
      */
     public void printPartialResults() {
-        long elapsed = System.nanoTime() - startTime;
-        double elapsedSeconds = elapsed / NANOSECOND_TO_SECOND;
+        long elapsedMilli = System.currentTimeMillis() - startTime;
+        double elapsedSeconds = elapsedMilli / MILLISECOND_TO_SECOND;
 
         logger.info("Messages sent {} (elapsed time: {}) size: {} [{}]",
                 messagesSent, secondFormat.format(elapsedSeconds), bytesFormat.format(bytesSent / BYTES_TO_MEGABYTES),
@@ -147,45 +148,38 @@ public class NetworkStats {
      * Prints or rather logs (info level) only latency results to configured output in logback.xml.
      */
     public void printLatencyResults() {
-        long elapsedNano = getElapsedTime();
-        double elapsedSeconds = elapsedNano / NANOSECOND_TO_SECOND;
+        long elapsedMilli = getElapsedTime();
+        double elapsedSeconds = elapsedMilli / MILLISECOND_TO_SECOND;
 
         logger.info("Final results (total time: {})", secondFormat.format(elapsedSeconds));
         logger.info("Size: {} message(s) received", messagesSent);
         printLatencies();
         printPercentiles(0.25, 0.5, 0.75, 0.95, 0.99);
+        printRawLatencies();
     }
 
     /**
      * Prints or rather logs (info level) partial latency results when every 10% messages are sent.
      */
     public void printPartialLatencyResults() {
-        long elapsed = System.nanoTime() - startTime;
-        double elapsedSeconds = elapsed / NANOSECOND_TO_SECOND;
+        long elapsedMilli = System.currentTimeMillis() - startTime;
+        double elapsedSeconds = elapsedMilli / MILLISECOND_TO_SECOND;
 
         logger.info("Message(s) received {} (elapsed time: {})",
                 messagesSent, secondFormat.format(elapsedSeconds));
     }
 
     /**
-     * Prints all latencies to output file.
-     * @param output File to write latencies to.
+     * Prints (logs) all latencies to output.
      */
-    public void printRawLatencies(File output) {
-        PrintWriter printWriter = null;
-        try {
-            FileWriter fileWriter = new FileWriter(output);
-            printWriter = new PrintWriter(fileWriter);
-            for (Long latency : latencies) {
-                printWriter.println(latency);
-            }
-        } catch (IOException exp) {
-
-        } finally {
-            if (printWriter != null) {
-                printWriter.close();
-            }
+    public void printRawLatencies() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("RAW Latencies");
+        stringBuilder.append(System.lineSeparator()).append(System.lineSeparator());
+        for (long lat : latencies) {
+            stringBuilder.append("LAT - ").append(lat).append(System.lineSeparator());
         }
+        logger.info(stringBuilder.toString());
     }
 
     private String getBytesPerSecond(double elapsedSeconds) {
@@ -199,9 +193,7 @@ public class NetworkStats {
     }
 
     private void printLatencies() {
-        DoubleSummaryStatistics latencyStatistics = latencies.stream()
-                .mapToDouble(latency -> latency / NANOSECOND_TO_MILLISECOND)
-                .summaryStatistics();
+        LongSummaryStatistics latencyStatistics = latencies.stream().mapToLong(l -> l).summaryStatistics();
 
         logger.info("Latencies:");
         logger.info("{} average, {} minimum, {} maximum",
@@ -215,7 +207,7 @@ public class NetworkStats {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < values.size(); i++) {
             Double percent = percentiles[i] * 100;
-            stringBuilder.append(millisecondFormat.format(values.get(i) / NANOSECOND_TO_MILLISECOND));
+            stringBuilder.append(millisecondFormat.format(values.get(i)));
             stringBuilder.append(" ");
             stringBuilder.append(percent.intValue());
             stringBuilder.append("th");

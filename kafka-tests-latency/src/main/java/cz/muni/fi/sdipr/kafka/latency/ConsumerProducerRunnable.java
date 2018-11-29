@@ -98,7 +98,7 @@ public class ConsumerProducerRunnable implements Runnable {
 
                 for (int j = 0; j < mapping.getMessages(); j++) {
                     producedPayload = new Payload();
-                    producedPayload.setProducerTime(System.nanoTime());
+                    producedPayload.setProducerTime(System.currentTimeMillis());
                     producedPayload.setPayload(mapping.getStringPayload());
                     writer.write(producedPayload, encoder);
                     encoder.flush();
@@ -117,7 +117,7 @@ public class ConsumerProducerRunnable implements Runnable {
                     for (ConsumerRecord<String, byte[]> record : records) {
                         decoder = DecoderFactory.get().binaryDecoder(record.value(), decoder);
                         consumedPayload = reader.read(consumedPayload, decoder);
-                        consumerStats.recordLatency(System.nanoTime() - consumedPayload.getProducerTime());
+                        consumerStats.recordLatency(System.currentTimeMillis() - consumedPayload.getProducerTime());
                         countDownLatch--;
                     }
                 }

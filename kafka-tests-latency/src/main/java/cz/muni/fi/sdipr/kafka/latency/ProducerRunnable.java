@@ -67,7 +67,7 @@ public class ProducerRunnable implements Runnable {
 
             int messages = mappings.stream().mapToInt(TopicMapping::getMessages).sum();
             KafkaProducer<String, byte[]> kafkaProducer = new KafkaProducer<>(properties.getProperties());
-            NetworkStats stats = new NetworkStats(repeats * messages);
+            //NetworkStats stats = new NetworkStats(repeats * messages);
 
             try {
 
@@ -78,40 +78,38 @@ public class ProducerRunnable implements Runnable {
                 Encoder encoder = EncoderFactory.get().directBinaryEncoder(out, null);
 
                 logger.info("Producing ...");
+                //stats.setStartTime();
                 for (int i = 0; i < repeats; i++) {
-                    if (isTransactional.get()) {
-                        kafkaProducer.beginTransaction();
-                    }
+                    if (isTransactional.get()) { kafkaProducer.beginTransaction(); }
 
                     for (TopicMapping mapping : mappings) {
                         for (int j = 0; j < mapping.getMessages(); j++) {
                             Payload payload = new Payload();
-                            payload.setProducerTime(System.nanoTime());
+                            payload.setProducerTime(System.currentTimeMillis());
                             payload.setPayload(mapping.getStringPayload());
 
                             writer.write(payload, encoder);
                             encoder.flush();
 
-                            kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), out.toByteArray()),
-                                    new ProducerCallback(stats, mapping.getByteSize()));
+                            //kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), out.toByteArray()),
+                            //        new ProducerCallback(stats, mapping.getByteSize()));
+                            kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), out.toByteArray()));
                             out.reset();
                         }
                     }
 
-                    if (isTransactional.get()) {
-                        kafkaProducer.commitTransaction();
-                    }
+                    if (isTransactional.get()) { kafkaProducer.commitTransaction(); }
                 }
             } catch (IOException exp) {
                 logger.error(exp.getMessage());
             } finally {
                 kafkaProducer.close();
                 logger.info("Producer shut down ...");
-                stats.setStopTime();
-                Thread.sleep(FINAL_WAIT);
-                printProducer.await();
-                logger.info("---Producer results---");
-                stats.printResults();
+                //stats.setStopTime();
+                //Thread.sleep(FINAL_WAIT);
+                //printProducer.await();
+                //logger.info("---Producer results---");
+                //stats.printResults();
             }
         } catch (InterruptedException exp) {
             logger.error(exp.getMessage());
