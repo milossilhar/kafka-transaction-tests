@@ -387,35 +387,35 @@ function size_tests {
   
   # Transactional Tests
   
-#  # 1000 messages, transactional, size=5MB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,5242880\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-5MB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,5242880" | tee ${HOME}/${KAFKA_LEN}server-size-trans-5MB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, transactional, size=1MB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,1048576\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-1MB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,1048576" | tee ${HOME}/${KAFKA_LEN}server-size-trans-1MB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, transactional, size=500kB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,512000\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-500kB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,512000" | tee ${HOME}/${KAFKA_LEN}server-size-trans-500kB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, transactional, size=200kB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,204800\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-200kB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,204800" | tee ${HOME}/${KAFKA_LEN}server-size-trans-200kB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, transactional, size=100kB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,102400\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-100kB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,102400" | tee ${HOME}/${KAFKA_LEN}server-size-trans-100kB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, transactional, size=50kB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,51200\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-50kB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,51200" | tee ${HOME}/${KAFKA_LEN}server-size-trans-50kB-0-1-0_${now}.out
-#  restart_servers
+  # 1000 messages, transactional, size=5MB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,5242880\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-5MB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,5242880" | tee ${HOME}/${KAFKA_LEN}server-size-trans-5MB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, transactional, size=1MB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,1048576\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-1MB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,1048576" | tee ${HOME}/${KAFKA_LEN}server-size-trans-1MB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, transactional, size=500kB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,512000\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-500kB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,512000" | tee ${HOME}/${KAFKA_LEN}server-size-trans-500kB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, transactional, size=200kB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,204800\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-200kB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,204800" | tee ${HOME}/${KAFKA_LEN}server-size-trans-200kB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, transactional, size=100kB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,102400\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-100kB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,102400" | tee ${HOME}/${KAFKA_LEN}server-size-trans-100kB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, transactional, size=50kB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,51200\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-50kB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,51200" | tee ${HOME}/${KAFKA_LEN}server-size-trans-50kB-0-1-0_${now}.out
+  restart_servers
   
   # ACKS=ALL tests
   
@@ -451,34 +451,34 @@ function size_tests {
   
   # ACKS=1 tests
   
-#  # 1000 messages, ack=one, size=5MB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,5242880\" | tee ${HOME}/${KAFKA_LEN}server-size-one-5MB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,5242880" | tee ${HOME}/${KAFKA_LEN}server-size-one-5MB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, ack=one, size=1MB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,1048576\" | tee ${HOME}/${KAFKA_LEN}server-size-one-1MB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,1048576" | tee ${HOME}/${KAFKA_LEN}server-size-one-1MB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, ack=one, size=500kB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,512000\" | tee ${HOME}/${KAFKA_LEN}server-size-one-500kB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,512000" | tee ${HOME}/${KAFKA_LEN}server-size-one-500kB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, ack=one, size=200kB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,204800\" | tee ${HOME}/${KAFKA_LEN}server-size-one-200kB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,204800" | tee ${HOME}/${KAFKA_LEN}server-size-one-200kB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, ack=one, size=100kB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,102400\" | tee ${HOME}/${KAFKA_LEN}server-size-one-100kB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,102400" | tee ${HOME}/${KAFKA_LEN}server-size-one-100kB-0-1-0_${now}.out
-#  restart_servers
-#  
-#  # 1000 messages, ack=one, size=50kB
-#  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,51200\" | tee ${HOME}/${KAFKA_LEN}server-size-one-50kB-0-1-0_${now}.out"
-#  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,51200" | tee ${HOME}/${KAFKA_LEN}server-size-one-50kB-0-1-0_${now}.out
+  # 1000 messages, ack=one, size=5MB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,5242880\" | tee ${HOME}/${KAFKA_LEN}server-size-one-5MB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,5242880" | tee ${HOME}/${KAFKA_LEN}server-size-one-5MB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, ack=one, size=1MB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,1048576\" | tee ${HOME}/${KAFKA_LEN}server-size-one-1MB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,1048576" | tee ${HOME}/${KAFKA_LEN}server-size-one-1MB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, ack=one, size=500kB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,512000\" | tee ${HOME}/${KAFKA_LEN}server-size-one-500kB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,512000" | tee ${HOME}/${KAFKA_LEN}server-size-one-500kB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, ack=one, size=200kB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,204800\" | tee ${HOME}/${KAFKA_LEN}server-size-one-200kB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,204800" | tee ${HOME}/${KAFKA_LEN}server-size-one-200kB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, ack=one, size=100kB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,102400\" | tee ${HOME}/${KAFKA_LEN}server-size-one-100kB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,102400" | tee ${HOME}/${KAFKA_LEN}server-size-one-100kB-0-1-0_${now}.out
+  restart_servers
+  
+  # 1000 messages, ack=one, size=50kB
+  echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,51200\" | tee ${HOME}/${KAFKA_LEN}server-size-one-50kB-0-1-0_${now}.out"
+  mvn -q exec:java -Dexec.args="-P -s ${KAFKA_PORT_STR} -p ${property_one_file} -n 1000 -m ${im_name},1,51200" | tee ${HOME}/${KAFKA_LEN}server-size-one-50kB-0-1-0_${now}.out
   stop_servers
 }
 
@@ -487,17 +487,17 @@ function latency_tests {
   # restart servers
   restart_servers
   
-  # 10 000 messages, transactional
+  # 5000 messages, transactional
   echo "CMD - mvn -q exec:java -Dexec.args=\"-s ${KAFKA_PORT_STR} -p ${property_trans_file} -c ${consumer_property} -n 5000 -m ${latency_name},1,${latency_size}\" | tee ${HOME}/${KAFKA_LEN}server-latency-trans-result_${now}.out"
   mvn -q exec:java -Dexec.args="-s ${KAFKA_PORT_STR} -p ${property_trans_file} -c ${consumer_property} -n 5000 -m ${latency_name},1,${latency_size}" | tee ${HOME}/${KAFKA_LEN}server-latency-trans-result_${now}.out
   restart_servers
   
-  # 10 000 messages, ack=all
+  # 5000 messages, ack=all
   echo "CMD - mvn -q exec:java -Dexec.args=\"-s ${KAFKA_PORT_STR} -p ${property_all_file} -c ${consumer_property} -n 5000 -m ${latency_name},1,${latency_size}\" | tee ${HOME}/${KAFKA_LEN}server-latency-all-result_${now}.out"
   mvn -q exec:java -Dexec.args="-s ${KAFKA_PORT_STR} -p ${property_all_file} -c ${consumer_property} -n 5000 -m ${latency_name},1,${latency_size}" | tee ${HOME}/${KAFKA_LEN}server-latency-all-result_${now}.out
   restart_servers
   
-  # 10 000 messages, ack=1
+  # 5000 messages, ack=1
   echo "CMD - mvn -q exec:java -Dexec.args=\"-s ${KAFKA_PORT_STR} -p ${property_one_file} -c ${consumer_property} -n 5000 -m ${latency_name},1,${latency_size}\" | tee ${HOME}/${KAFKA_LEN}server-latency-one-result_${now}.out"
   mvn -q exec:java -Dexec.args="-s ${KAFKA_PORT_STR} -p ${property_one_file} -c ${consumer_property} -n 5000 -m ${latency_name},1,${latency_size}" | tee ${HOME}/${KAFKA_LEN}server-latency-one-result_${now}.out
   stop_servers
@@ -516,46 +516,46 @@ echo "CMD - cd kafka-tests-latency"
 cd kafka-tests-latency
 
 # Sets execution for 1 kafka servers
-#set_one_kafka
+set_one_kafka
 # Prints actual configuration
-#print_kafka_servers
+print_kafka_servers
 # Runs transactional tests
-#transactional_tests
+transactional_tests
 # Runs size based tests
-#size_tests
+size_tests
 # Runs latency tests
-#latency_tests
+latency_tests
 
 # Sets execution for 3 kafka servers
 set_three_kafka
 # Prints actual configuration
 print_kafka_servers
 # Runs transactional tests
-#transactional_tests
+transactional_tests
 # Runs size based tests
 size_tests
 # Runs latency tests
-#latency_tests
+latency_tests
 
-## Sets execution for 5 kafka servers
-#set_five_kafka
-## Prints actual configuration
-#print_kafka_servers
-## Runs transactional tests
-#transactional_tests
-## Runs size based tests
-#size_tests
-## Runs latency tests
-#latency_tests
-#
-## Sets execution for 9 kafka servers
-#set_nine_kafka
-## Prints actual configuration
-#print_kafka_servers
-## Runs transactional tests
-#transactional_tests
-## Runs size based tests
-#size_tests
-## Runs latency tests
-#latency_tests
+# Sets execution for 5 kafka servers
+set_five_kafka
+# Prints actual configuration
+print_kafka_servers
+# Runs transactional tests
+transactional_tests
+# Runs size based tests
+size_tests
+# Runs latency tests
+latency_tests
+
+# Sets execution for 9 kafka servers
+set_nine_kafka
+# Prints actual configuration
+print_kafka_servers
+# Runs transactional tests
+transactional_tests
+# Runs size based tests
+size_tests
+# Runs latency tests
+latency_tests
 
