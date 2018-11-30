@@ -10,7 +10,7 @@ if [ "$#" -ne "0" ]; then
 fi
 
 ZOO_SERVERS=( "nymfe30.fi.muni.cz" "nymfe31.fi.muni.cz" "nymfe32.fi.muni.cz" )
-KAFKA_SERVERS=( "nymfe40.fi.muni.cz:9092" "nymfe41.fi.muni.cz:9092" "nymfe42.fi.muni.cz:9092" "nymfe43.fi.muni.cz:9092" "nymfe44.fi.muni.cz:9092" "nymfe45.fi.muni.cz:9092" "nymfe46.fi.muni.cz:9092" "nymfe47.fi.muni.cz:9092" "nymfe48.fi.muni.cz:9092" )
+KAFKA_SERVERS=( "nymfe40.fi.muni.cz" "nymfe41.fi.muni.cz" "nymfe42.fi.muni.cz" "nymfe43.fi.muni.cz" "nymfe44.fi.muni.cz" "nymfe45.fi.muni.cz" "nymfe46.fi.muni.cz" "nymfe47.fi.muni.cz" "nymfe48.fi.muni.cz" )
 
 for zoo in ${ZOO_SERVERS[@]}; do
   echo "CMD - ssh $zoo \"who -q\""
