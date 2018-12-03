@@ -528,27 +528,27 @@ mvn -q clean install
 echo "CMD - cd kafka-tests-latency"
 cd kafka-tests-latency
 
-# Sets execution for 1 kafka servers
-set_one_kafka
-# Prints actual configuration
-print_kafka_servers
-# Runs transactional tests
-transactional_tests
-# Runs size based tests
-size_tests
-# Runs latency tests
-latency_tests
-
-# Sets execution for 3 kafka servers
-set_three_kafka
-# Prints actual configuration
-print_kafka_servers
-# Runs transactional tests
-transactional_tests
-# Runs size based tests
-size_tests
-# Runs latency tests
-latency_tests
+## Sets execution for 1 kafka servers
+#set_one_kafka
+## Prints actual configuration
+#print_kafka_servers
+## Runs transactional tests
+#transactional_tests
+## Runs size based tests
+#size_tests
+## Runs latency tests
+#latency_tests
+#
+## Sets execution for 3 kafka servers
+#set_three_kafka
+## Prints actual configuration
+#print_kafka_servers
+## Runs transactional tests
+#transactional_tests
+## Runs size based tests
+#size_tests
+## Runs latency tests
+#latency_tests
 
 # Sets execution for 5 kafka servers
 set_five_kafka
