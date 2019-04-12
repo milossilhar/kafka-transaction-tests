@@ -5,11 +5,18 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>cz.muni.fi.sdipr.kafka</groupId>
-  <artifactId>kafka-producer-test</artifactId>
-  <version>1.0-SNAPSHOT</version>
-
-  <name>Kafka Producer Test</name>
-
+  <artifactId>kafka-tests-parent</artifactId>
+  <version>1.0</version>
+  <packaging>pom</packaging>
+  
+  <name>Kafka Transactional Tests</name>
+  
+  <modules>
+    <module>kafka-tests-common</module>
+    <module>kafka-tests-producer</module>
+    <module>kafka-tests-latency</module>
+  </modules>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -81,21 +88,6 @@
         <plugin>
           <artifactId>maven-deploy-plugin</artifactId>
           <version>2.8.2</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>java</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <mainClass>cz.muni.fi.sdipr.kafka.App</mainClass>
-          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
