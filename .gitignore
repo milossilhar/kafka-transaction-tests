@@ -1,6 +1,10 @@
 # Compiled class file
 *.class
 
+# Ignore Kafka Test output files
+*.csv
+*.out
+
 # Log file
 *.log
 

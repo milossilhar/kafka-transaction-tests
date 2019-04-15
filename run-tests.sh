@@ -440,7 +440,7 @@ function transactional_tests {
 function size_tests {
   restart_servers
   
-  # Transactional Tests
+  # Size Tests
   
   # 1000 messages, transactional, size=5MB
   echo "CMD - mvn -q exec:java -Dexec.args=\"-P -s ${KAFKA_PORT_STR} -p ${property_trans_file} -n 1000 -m ${im_name},1,5242880\" | tee ${HOME}/${KAFKA_LEN}server-size-trans-5MB-0-1-0_${now}.out"
