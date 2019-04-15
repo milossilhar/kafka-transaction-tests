@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-SIGNAL=${SIGNAL:-TERM}
+SIGNAL=${SIGNAL:-KILL}
 PIDS=$(ps ax | grep java | grep -i QuorumPeerMain | grep -v grep | awk '{print $1}')
 
 if [ -z "$PIDS" ]; then
