@@ -1,6 +1,9 @@
 # Compiled class file
 *.class
 
+# Ignore Kafka logs folder
+kafka/logs
+
 # Ignore Kafka Test output files
 *.csv
 *.out
