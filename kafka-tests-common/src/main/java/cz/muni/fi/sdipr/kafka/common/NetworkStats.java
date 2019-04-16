@@ -20,8 +20,9 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 /**
- *
+ * Statistics of network transmission between producer and consumer
  * @author Milos Silhar
+ * TODO Change percentiles to List<Double> instead of that stupid variable args
  */
 public class NetworkStats {
 
@@ -79,7 +80,8 @@ public class NetworkStats {
      */
     public long getElapsedTime() {
         if (stopTime == 0) {
-            return System.currentTimeMillis() - startTime;
+            stopTime = System.currentTimeMillis();
+            //return System.currentTimeMillis() - startTime;
         }
         return stopTime - startTime;
     }
@@ -130,6 +132,7 @@ public class NetworkStats {
         printLatencies();
         printPercentiles(0.25, 0.5, 0.75, 0.95, 0.99);
         printRawLatencies();
+        printRawStatistics(true);
     }
 
     /**
@@ -156,6 +159,7 @@ public class NetworkStats {
         printLatencies();
         printPercentiles(0.25, 0.5, 0.75, 0.95, 0.99);
         printRawLatencies();
+        printRawStatistics(false);
     }
 
     /**
@@ -170,14 +174,64 @@ public class NetworkStats {
     }
 
     /**
-     * Prints (logs) all latencies to output.
+     * Prints (logs) raw latencies to output.
      */
     public void printRawLatencies() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("RAW Latencies");
-        stringBuilder.append(System.lineSeparator()).append(System.lineSeparator());
+        stringBuilder.append("RAW Latencies").append(System.lineSeparator());
+        stringBuilder.append("Latencies are in milliseconds [ms]").append(System.lineSeparator());
         for (long lat : latencies) {
             stringBuilder.append("LAT - ").append(lat).append(System.lineSeparator());
+        }
+        logger.info(stringBuilder.toString());
+    }
+
+    /**
+     * Prints (logs) raw statistics to output.
+     * AVG - average latency [ms]
+     * MIN - minimum latency [ms]
+     * MAX - maximum latency [ms]
+     * xxP - xx% Percentil [ms]
+     * MSG - messages sent/received [msg]
+     * TOT - total time [s]
+     * BYT - bytes sent [B] /only in producer export - send True/
+     * MPS - speed of sending [msg/s] /only in producer export - send True/
+     * BPS - speed of sending [B/s] /only in producer export - send True/
+     * @param send True if printing statistics for sending, False for receiving
+     */
+    public void printRawStatistics(boolean send) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("RAW Statistics").append(System.lineSeparator());
+
+        LongSummaryStatistics latencyStatistics = this.latencies.stream().mapToLong(l -> l).summaryStatistics();
+        // append AVG
+        stringBuilder.append("AVG - ").append(latencyStatistics.getAverage()).append(System.lineSeparator());
+        // append MIN
+        stringBuilder.append("MIN - ").append(latencyStatistics.getMin()).append(System.lineSeparator());
+        // append MAX
+        stringBuilder.append("MAX - ").append(latencyStatistics.getMax()).append(System.lineSeparator());
+
+        List<Integer> percent = Arrays.asList(25, 50, 75, 95, 99);
+        List<Long> resultPercentiles = percentiles(0.25, 0.5, 0.75, 0.95, 0.99);
+        for (int i = 0; i < resultPercentiles.size(); i++) {
+            // append xxP
+            stringBuilder.append(percent.get(i)).append("P - ").append(resultPercentiles.get(i)).append(System.lineSeparator());
+        }
+
+        // append MSG
+        stringBuilder.append("MSG - ").append(this.messagesSent).append(System.lineSeparator());
+
+        long elapsedMilli = getElapsedTime();
+        double elapsedSeconds = elapsedMilli / MILLISECOND_TO_SECOND;
+        // append TOT
+        stringBuilder.append("TOT - ").append(elapsedSeconds).append(System.lineSeparator());
+        if (send) {
+            // append BYT
+            stringBuilder.append("BYT - ").append(this.bytesSent).append(System.lineSeparator());
+            // append MPS
+            stringBuilder.append("MPS - ").append(this.messagesSent / elapsedSeconds).append(System.lineSeparator());
+            // append BPS
+            stringBuilder.append("BPS - ").append(this.bytesSent / elapsedSeconds).append(System.lineSeparator());
         }
         logger.info(stringBuilder.toString());
     }

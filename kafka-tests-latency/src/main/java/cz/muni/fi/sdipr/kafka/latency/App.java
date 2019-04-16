@@ -32,15 +32,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * -c | --consumer-props
  *      Path to consumer props file
  * -P | --producer-alone
- *      Runs application with only producer test
+ *      Runs application with only producer test.
  * -n | --repeats
- *      Number of retries given scenario will be executed
+ *      Number of retries given scenario will be executed.
  * -m | --topic-mapping
  *      Mapping messages to topics in format topic-name,number-of-messages,message-size
- *      Number of messages can be omitted, then is 1 used
- *      More mappings are possible with space separating them
+ *      Number of messages can be omitted, then is 1 used.
+ *      More mappings are possible with space separating them.
+ *      Sending is realized with two threads where producer and consumer simultaneously send/receive messages.
  * -t | --topic
- *      Topic to which send messages only one topic
+ *      Topic to which send messages only one topic.
  *      Sending is realized with one thread where producer waits after each send for consumer to consume.
  * -s | --servers
  *      Servers of Kafka cluster, used to override servers set in each properties files.
