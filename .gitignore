@@ -4,7 +4,9 @@
 # Ignore Kafka logs folder
 kafka/logs
 
-# Ignore Kafka Test output files
+
+# Ignore Kafka Test output files and develop directory
+results-develop
 *.csv
 *.out
 
