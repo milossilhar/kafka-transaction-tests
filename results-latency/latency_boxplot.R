@@ -1,4 +1,4 @@
-data <- read.csv("kafka-latencies-boxplot.csv")
+data <- read.csv("latency_boxplot.csv")
 
 colors <- c("aquamarine","royalblue","indianred")
 colors_dark <- c("aquamarine4","royalblue4","indianred4")

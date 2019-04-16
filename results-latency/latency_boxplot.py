@@ -19,6 +19,6 @@ for name in files:
         for line in latency_file:
             if line.startswith("LAT - "):
                 result_file += line.replace("LAT - ", name_splitted[0] + "-" + name_splitted[2] + ",")
-csv_file = "kafka-latencies-boxplot.csv"
+csv_file = "latency_boxplot.csv"
 with open(csv_file, "w") as csvfile:
     csvfile.write(result_file)
