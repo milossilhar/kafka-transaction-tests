@@ -19,6 +19,6 @@ CMD_LOCATION=$(dirname $0)
 BINARY_LOCATION="${CMD_LOCATION}/bin"
 
 ${BINARY_LOCATION}/zookeeper-server-stop.sh && echo "INFO - Zookeeper instance(s) stopped"
-sleep 10
+sleep 1
 echo "INFO - Removing zookeeper folders"
 rm -rf /tmp/xsilhar-zookeeper/

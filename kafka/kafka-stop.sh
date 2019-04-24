@@ -19,6 +19,6 @@ CMD_LOCATION=$(dirname $0)
 BINARY_LOCATION="${CMD_LOCATION}/bin"
 
 ${BINARY_LOCATION}/kafka-server-stop.sh && echo "INFO - Kafka server(s) stopped"
-sleep 10
+sleep 1
 echo "INFO - Removing kafka folders"
 rm -rf /tmp/xsilhar-kafka-*-logs/

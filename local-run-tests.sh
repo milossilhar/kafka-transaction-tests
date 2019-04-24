@@ -258,8 +258,8 @@ function stop_servers {
   
   # waits for kafka to stop
   echo "INFO - Waiting for kafka to stop ..."
-  echo "CMD - sleep 5"
-  [ $DRY_RUN -eq "0" ] && sleep 5
+  echo "CMD - sleep 1"
+  [ $DRY_RUN -eq "0" ] && sleep 1
   
   if [ $IS_SAME_ZOO -eq "0" ]; then
     ZOO_SERVER=${ZOOKEEPER[0]}
@@ -277,12 +277,12 @@ function stop_servers {
 # restarts servers kafka and zookeeper on all servers
 function restart_servers {
   stop_servers
-  echo "CMD - sleep 10"
-  [ $DRY_RUN -eq "0" ] && sleep 10
+  echo "CMD - sleep 2"
+  [ $DRY_RUN -eq "0" ] && sleep 2
   start_servers
   echo "INFO - Waiting for servers to initialize ..."
-  echo "CMD - sleep 15"
-  [ $DRY_RUN -eq "0" ] && sleep 15
+  echo "CMD - sleep 10"
+  [ $DRY_RUN -eq "0" ] && sleep 10
   echo "CMD - ${LOCATION}/kafka-init-topics.sh ${ZOO_PORT_STR} ${KAFKA_LEN}"
   [ $DRY_RUN -eq "0" ] && ${LOCATION}/kafka-init-topics.sh ${ZOO_PORT_STR} ${KAFKA_LEN}
   echo "INFO - Waiting for topics to initialize ..."
@@ -549,12 +549,12 @@ function latency_tests {
   # 2000 messages, transactional
   echo "CMD - mvn -q exec:java -Dexec.args=\"-s ${KAFKA_PORT_STR} -p ${property_trans_file} -c ${consumer_property} -n 2000 -m ${latency_name},1,${latency_size}\" | tee ${HOME}/${KAFKA_LEN}server-latency-trans-result_${now}.out"
   [ $DRY_RUN -eq "0" ] && mvn -q exec:java -Dexec.args="-s ${KAFKA_PORT_STR} -p ${property_trans_file} -c ${consumer_property} -n 2000 -m ${latency_name},1,${latency_size}" | tee ${HOME}/${KAFKA_LEN}server-latency-trans-result_${now}.out
-  [ $RESTART_ALL -eq "1" ] && restart_servers
+  restart_servers
   
   # 2000 messages, ack=all
   echo "CMD - mvn -q exec:java -Dexec.args=\"-s ${KAFKA_PORT_STR} -p ${property_all_file} -c ${consumer_property} -n 2000 -m ${latency_name},1,${latency_size}\" | tee ${HOME}/${KAFKA_LEN}server-latency-all-result_${now}.out"
   [ $DRY_RUN -eq "0" ] && mvn -q exec:java -Dexec.args="-s ${KAFKA_PORT_STR} -p ${property_all_file} -c ${consumer_property} -n 2000 -m ${latency_name},1,${latency_size}" | tee ${HOME}/${KAFKA_LEN}server-latency-all-result_${now}.out
-  [ $RESTART_ALL -eq "1" ] && restart_servers
+  restart_servers
   
   # 2000 messages, ack=1
   echo "CMD - mvn -q exec:java -Dexec.args=\"-s ${KAFKA_PORT_STR} -p ${property_one_file} -c ${consumer_property} -n 2000 -m ${latency_name},1,${latency_size}\" | tee ${HOME}/${KAFKA_LEN}server-latency-one-result_${now}.out"
