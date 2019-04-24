@@ -12,7 +12,7 @@ a <- boxplot(latencies~names,
         border=colors_dark,
         varwidth=TRUE,
         pch=20,
-        names=c("1", "1", "1", "3", "3", "3", "5", "5", "5", "9")
+        names=c("1", "1", "1", "3", "3", "3", "5", "5", "5", "9", "9", "9")
 )
 
 #text( c(1:nlevels(data$names)) , 150, paste(c("all", "one", "trans", "all", "one", "trans", "all", "one", "trans"),sep=""), col = "blue")
