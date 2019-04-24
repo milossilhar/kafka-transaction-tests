@@ -331,8 +331,8 @@ function eval_servers {
 
 # Prints kafka variables 
 function print_kafka_servers {
-  echo "INFO - var: KAFKA = ${KAFKA}"
-  echo "INFO - var: KAFKA_PORT = ${KAFKA_PORT}"
+  echo "INFO - var: KAFKA = ${KAFKA[@]}"
+  echo "INFO - var: KAFKA_PORT = ${KAFKA_PORT[@]}"
   echo "INFO - var: KAFKA_LEN = ${KAFKA_LEN}"
   echo "INFO - var: KAFKA_STR = ${KAFKA_STR}"
   echo "INFO - var: KAFKA_PORT_STR = ${KAFKA_PORT_STR}"
