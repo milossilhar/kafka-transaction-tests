@@ -6,7 +6,7 @@ function printUsage {
   echo "-h | --help     prints this help"
   echo "-d | --dry-run  run only echoes not actual commands"
   echo "-l | --latency  run latency tests"
-  echo "-r | --restart  runs after each command in transaction tests only"
+  echo "-r | --restart  restarts servers after each command (transaction tests only)"
   echo "-s | --size     run size tests"
   echo "-t | --trans    run transactional tests"
   echo "-1 | --one      run only tests on one(1) server"
