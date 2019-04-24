@@ -31,7 +31,7 @@ public class ProducerRunnable implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ProducerRunnable.class);
 
-    private static final int    INIT_WAIT     = 500; // milliseconds
+    private static final int    INIT_WAIT     = 5000; // milliseconds
     private static final int    FINAL_WAIT    = 2000; // milliseconds before consumer is shut down
 
     private int repeats;
@@ -70,8 +70,7 @@ public class ProducerRunnable implements Runnable {
             //NetworkStats stats = new NetworkStats(repeats * messages);
 
             try {
-
-                if (isTransactional.get()) kafkaProducer.initTransactions();
+                if (isTransactional.get()) { kafkaProducer.initTransactions(); }
 
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 DatumWriter<Payload> writer = new SpecificDatumWriter<>(Payload.class);

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -72,15 +73,13 @@ public class ConsumerRunnable implements Runnable {
 
             kafkaConsumer.subscribe(topics);
 
-            kafkaConsumer.seekToEnd(Collections.emptyList());
-            kafkaConsumer.poll(Duration.ofMillis(100));
-
             logger.info("Starting producer ...");
             startProducer.countDown();
 
             int countDownMessages = totalMessages;
             stats.setStartTime();
-            while (countDownMessages > 0 && !stopConsumer.get()) {
+            while (countDownMessages > 0) {
+            //while (countDownMessages > 0 && !stopConsumer.get()) {
                 ConsumerRecords<String, byte[]> records = kafkaConsumer.poll(Duration.ofMillis(100));
                 for (ConsumerRecord<String, byte[]> record : records) {
                     decoder = DecoderFactory.get().binaryDecoder(record.value(), decoder);
