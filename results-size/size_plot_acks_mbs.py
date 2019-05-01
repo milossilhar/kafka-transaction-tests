@@ -27,7 +27,7 @@ for name in files:
         continue
     name_replaced = name.replace("_", "-")
     name_splitted = name_replaced.split("-")
-    if name_splitted[1] == "size":
+    if name_splitted[0] == "3server" and name_splitted[1] == "size":
         print(name)
         size_file = open(name, "r")
         for line in size_file:
@@ -38,7 +38,7 @@ for name in files:
                 newLine = line.replace("\n", "")
                 resultDict[category][size_to_index(name_splitted[3])] = newLine.replace("BPS - ", "")
 
-CSV_FILE = "size_plot_mbs.csv"
+CSV_FILE = "size_plot_acks_mbs.csv"
 
 header = ",".join(resultDict.keys()) + "\n"
 maxRuns = max(list(map(len, resultDict.values())))

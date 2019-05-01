@@ -4,19 +4,19 @@ import os
 
 path = "."
 
-diffValues = 5
-
-def prod_to_index(size):
-    if (size == "1"):
+def size_to_index(size):
+    if (size == "50kB"):
         return 0
-    if (size == "2"):
+    if (size == "100kB"):
         return 1
-    if (size == "5"):
+    if (size == "200kB"):
         return 2
-    if (size == "10"):
+    if (size == "500kB"):
         return 3
-    if (size == "50"):
+    if (size == "1MB"):
         return 4
+    if (size == "5MB"):
+        return 5
 
 resultDict={}
 
@@ -27,18 +27,18 @@ for name in files:
         continue
     name_replaced = name.replace("_", "-")
     name_splitted = name_replaced.split("-")
-    if name_splitted[1] == "producer":
+    if name_splitted[1] == "size" and name_splitted[2] == "trans":
         print(name)
-        producer_file = open(name, "r")
-        for line in producer_file:
-            if line.startswith("BPS - "):
+        size_file = open(name, "r")
+        for line in size_file:
+            if line.startswith("MPS - "):
                 category = "con-" + name_splitted[0] + "-" + name_splitted[2]
                 if not category in resultDict:
-                    resultDict[category]=[None]*diffValues
+                    resultDict[category]=[None]*6
                 newLine = line.replace("\n", "")
-                resultDict[category][size_to_index(name_splitted[3])] = newLine.replace("BPS - ", "")
+                resultDict[category][size_to_index(name_splitted[3])] = newLine.replace("MPS - ", "")
 
-CSV_FILE = "producer_plot_mbs.csv"
+CSV_FILE = "size_plot_cluster_msg.csv"
 
 header = ",".join(resultDict.keys()) + "\n"
 maxRuns = max(list(map(len, resultDict.values())))

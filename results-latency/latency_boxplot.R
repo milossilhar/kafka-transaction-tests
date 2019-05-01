@@ -1,11 +1,11 @@
 data <- read.csv("latency_boxplot.csv")
 
-colors <- c("aquamarine","royalblue","indianred")
-colors_dark <- c("aquamarine4","royalblue4","indianred4")
+colors <- c("seagreen2","royalblue","indianred")
+colors_dark <- c("seagreen4","royalblue4","indianred4")
 #Draw the boxplot, with the number of individuals per group
 a <- boxplot(latencies~names,
         data=data,
-        main="Oneskorenia správ medzi producentom a odberateľom.",
+        #main="Oneskorenia správ medzi producentom a odberateľom.",
         xlab="Počet uzlov v klastri systému Kafka",
         ylab="Oneskorenie odberateľa [ms]",
         col=colors,
@@ -17,3 +17,4 @@ a <- boxplot(latencies~names,
 
 #text( c(1:nlevels(data$names)) , 150, paste(c("all", "one", "trans", "all", "one", "trans", "all", "one", "trans"),sep=""), col = "blue")
 legend("topleft", inset=.02, title="Nastavenie Producenta", c("ACKS=all","ACKS=1","Tranzakcie"), fill=colors, horiz=TRUE, cex=0.8)
+

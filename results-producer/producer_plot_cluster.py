@@ -6,16 +6,16 @@ path = "."
 
 diffValues = 5
 
-def prod_to_index(size):
-    if (size == "1"):
+def prod_to_index(prod):
+    if (prod == "1"):
         return 0
-    if (size == "2"):
+    if (prod == "2"):
         return 1
-    if (size == "5"):
+    if (prod == "5"):
         return 2
-    if (size == "10"):
+    if (prod == "10"):
         return 3
-    if (size == "50"):
+    if (prod == "50"):
         return 4
 
 resultDict={}
@@ -27,7 +27,7 @@ for name in files:
         continue
     name_replaced = name.replace("_", "-")
     name_splitted = name_replaced.split("-")
-    if name_splitted[1] == "producer":
+    if name_splitted[1] == "producer" and name_splitted[2] == "trans":
         print(name)
         producer_file = open(name, "r")
         for line in producer_file:
@@ -36,9 +36,9 @@ for name in files:
                 if not category in resultDict:
                     resultDict[category]=[None]*diffValues
                 newLine = line.replace("\n", "")
-                resultDict[category][size_to_index(name_splitted[3])] = newLine.replace("MPS - ", "")
+                resultDict[category][prod_to_index(name_splitted[4])] = newLine.replace("MPS - ", "")
 
-CSV_FILE = "producer_plot_msg.csv"
+CSV_FILE = "producer_plot_cluster.csv"
 
 header = ",".join(resultDict.keys()) + "\n"
 maxRuns = max(list(map(len, resultDict.values())))

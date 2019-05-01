@@ -27,18 +27,18 @@ for name in files:
         continue
     name_replaced = name.replace("_", "-")
     name_splitted = name_replaced.split("-")
-    if name_splitted[1] == "size":
+    if name_splitted[1] == "size" and name_splitted[2] == "trans":
         print(name)
         size_file = open(name, "r")
         for line in size_file:
-            if line.startswith("MPS - "):
+            if line.startswith("BPS - "):
                 category = "con-" + name_splitted[0] + "-" + name_splitted[2]
                 if not category in resultDict:
                     resultDict[category]=[None]*6
                 newLine = line.replace("\n", "")
-                resultDict[category][size_to_index(name_splitted[3])] = newLine.replace("MPS - ", "")
+                resultDict[category][size_to_index(name_splitted[3])] = newLine.replace("BPS - ", "")
 
-CSV_FILE = "size_plot_msg.csv"
+CSV_FILE = "size_plot_cluster_mbs.csv"
 
 header = ",".join(resultDict.keys()) + "\n"
 maxRuns = max(list(map(len, resultDict.values())))
