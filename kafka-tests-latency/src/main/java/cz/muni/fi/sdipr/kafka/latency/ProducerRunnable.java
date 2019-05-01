@@ -94,6 +94,8 @@ public class ProducerRunnable implements Runnable {
                             //        new ProducerCallback(stats, mapping.getByteSize()));
                             kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), out.toByteArray()));
                             out.reset();
+
+                            Thread.sleep(500);
                         }
                     }
 
