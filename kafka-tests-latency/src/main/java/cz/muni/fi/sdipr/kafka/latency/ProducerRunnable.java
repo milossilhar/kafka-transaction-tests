@@ -1,7 +1,5 @@
 package cz.muni.fi.sdipr.kafka.latency;
 
-import cz.muni.fi.sdipr.kafka.common.NetworkStats;
-import cz.muni.fi.sdipr.kafka.common.ProducerCallback;
 import cz.muni.fi.sdipr.kafka.common.PropertiesLoader;
 import cz.muni.fi.sdipr.kafka.common.TopicMapping;
 import cz.muni.fi.sdipr.kafka.latency.avro.Payload;
@@ -31,8 +29,9 @@ public class ProducerRunnable implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ProducerRunnable.class);
 
-    private static final int    INIT_WAIT     = 5000; // milliseconds
-    private static final int    FINAL_WAIT    = 2000; // milliseconds before consumer is shut down
+    private static final int INIT_WAIT     = 5000; // milliseconds
+    private static final int FINAL_WAIT    = 2000; // milliseconds before consumer is shut down
+    private static final int SEND_WAIT     = 20; // milliseconds to wait after each send
 
     private int repeats;
 
@@ -95,7 +94,7 @@ public class ProducerRunnable implements Runnable {
                             kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), out.toByteArray()));
                             out.reset();
 
-                            Thread.sleep(500);
+                            Thread.sleep(SEND_WAIT);
                         }
                     }
 
