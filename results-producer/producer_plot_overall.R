@@ -1,9 +1,9 @@
 data <- read.csv("producer_plot_overall.csv")
 
 ymin <- min(data)
-ymax <- max(data) + 10000
+ymax <- max(data) + 25000
 
-colors <- c("seagreen2","royalblue","indianred")
+colors <- c("seagreen4","royalblue","indianred")
 
 pch_1 <- 19
 pch_3 <- 15
@@ -24,3 +24,4 @@ matplot(data,
 axis(1,at=c(1,2,3,4,5),labels=c("1-0-0 [1]", "2-0-1 [3]", "5-1-2 [8]", "10-2-4 [16]", "50-10-20 [80]"))
 legend("topleft", inset=.02, title="Nastavenie producenta", c("ACKS=all","ACKS=1","Tranzakcie"), col=colors, horiz=FALSE, cex=0.8, lty = 1, lwd = 1.3)
 legend("topright", inset=.02, title="Veľkosť klastra", c("1", "3", "5", "9"), horiz=TRUE, cex=0.8, pch=pch_legend)
+
