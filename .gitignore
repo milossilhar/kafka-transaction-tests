@@ -4,11 +4,14 @@
 # Ignore Kafka logs folder
 kafka/logs
 
-
 # Ignore Kafka Test output files and develop directory
 results-develop
 *.csv
 *.out
+
+# Ignore R Studio created files
+.RData
+.Rhistory
 
 # Log file
 *.log
