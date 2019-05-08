@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 LOCATION="${HOME}/dp/kafka-transaction-tests"
 SCRIPT="run-tests.sh"
@@ -19,4 +18,5 @@ mkdir latency-run-same-${now}
 mv *latency*.out latency-run-same-${now}/ 2> /dev/null
 cd ${LOCATION}
 
+echo "CMD - Sending Notification E-Mail."
 mailx -s "Latency Tests are Done" "migmig095@gmail.com" < email.msg
