@@ -44,7 +44,7 @@ public class ProducerTest {
         }
         for (TopicMapping mapping : mappings) {
             byte[] data = WARMUP_STRING.getBytes();
-            kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), null, data));
+            kafkaProducer.send(new ProducerRecord<>(mapping.getTopicName(), data));
         }
         if (isTransactional) {
             kafkaProducer.commitTransaction();
@@ -68,7 +68,7 @@ public class ProducerTest {
             for(TopicMapping mapping : mappings) {
                 for(int j = 0; j < mapping.getMessages(); j++) {
                     kafkaProducer.send(
-                            new ProducerRecord<>(mapping.getTopicName(), null, mapping.getPayload()),
+                            new ProducerRecord<>(mapping.getTopicName(), mapping.getPayload()),
                             new ProducerCallback(stats, mapping.getByteSize()));
                 }
             }
